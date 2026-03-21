@@ -626,12 +626,12 @@
       <div id="dash-view-panel">
         <div style="font-size:12px;color:var(--text-dim);margin-bottom:14px;letter-spacing:.5px;text-transform:uppercase;">Derived Ornament Rates</div>
         <div class="dash-derived-grid" id="dash-derived-grid">
-          <div class="derived-tile"><div class="dt-karat">22K · 916</div><div class="dt-rate" id="dr-916">—</div><div class="dt-sub">per gram</div></div>
-          <div class="derived-tile"><div class="dt-karat">21K · 875</div><div class="dt-rate" id="dr-875">—</div><div class="dt-sub">per gram</div></div>
-          <div class="derived-tile"><div class="dt-karat">18K · 750</div><div class="dt-rate" id="dr-750">—</div><div class="dt-sub">per gram</div></div>
-          <div class="derived-tile"><div class="dt-karat">14K · 585</div><div class="dt-rate" id="dr-585">—</div><div class="dt-sub">per gram</div></div>
-          <div class="derived-tile dt-silver"><div class="dt-karat">Silver · 925</div><div class="dt-rate" id="dr-silver">—</div><div class="dt-sub">per gram</div></div>
-          <div class="derived-tile dt-silver"><div class="dt-karat">Silver · 999</div><div class="dt-rate" id="dr-silver999">—</div><div class="dt-sub">per gram</div></div>
+          <div class="derived-tile"><div class="dt-karat">22K · 916</div><div class="dt-rate" id="dr-916">—</div><div class="dt-sub">per gram excl. GST</div></div>
+          <div class="derived-tile"><div class="dt-karat">21K · 875</div><div class="dt-rate" id="dr-875">—</div><div class="dt-sub">per gram excl. GST</div></div>
+          <div class="derived-tile"><div class="dt-karat">18K · 750</div><div class="dt-rate" id="dr-750">—</div><div class="dt-sub">per gram excl. GST</div></div>
+          <div class="derived-tile"><div class="dt-karat">14K · 585</div><div class="dt-rate" id="dr-585">—</div><div class="dt-sub">per gram excl. GST</div></div>
+          <div class="derived-tile dt-silver"><div class="dt-karat">Silver · 925</div><div class="dt-rate" id="dr-silver">—</div><div class="dt-sub">per gram excl. GST</div></div>
+          <div class="derived-tile dt-silver"><div class="dt-karat">Silver · 999</div><div class="dt-rate" id="dr-silver999">—</div><div class="dt-sub">per gram excl. GST</div></div>
         </div>
         <button class="btn btn-gold" style="margin-top:16px;width:100%;" onclick="dashStartEdit()">✏️ Edit Today's Rate</button>
       </div>
@@ -643,38 +643,38 @@
     <div class="tile">
       <div class="tile-label">24K Rate</div>
       <div class="tile-val" id="dash-tile-24k">₹—</div>
-      <div class="tile-sub">per 10g</div>
+      <div class="tile-sub">per 10g · excl. GST</div>
     </div>
     <div class="tile">
       <div class="tile-label">22K (916) Rate</div>
       <div class="tile-val" id="dash-tile-22k">₹—</div>
-      <div class="tile-sub">per gram</div>
+      <div class="tile-sub">per gram · excl. GST</div>
     </div>
     <div class="tile">
       <div class="tile-label">18K (750) Rate</div>
       <div class="tile-val" id="dash-tile-18k">₹—</div>
-      <div class="tile-sub">per gram</div>
+      <div class="tile-sub">per gram · excl. GST</div>
     </div>
     <div class="tile">
       <div class="tile-label">Silver Rate</div>
       <div class="tile-val" id="dash-tile-silver">₹—</div>
-      <div class="tile-sub">per kg</div>
+      <div class="tile-sub">per kg · excl. GST</div>
     </div>
   </div>
 
   <!-- ── RATE TABLE ALL KARATS ── -->
   <div class="card" style="margin-top:20px;">
-    <div class="card-title">📊 Full Karat Rate Chart — Auto Calculated from 24K Base</div>
+    <div class="card-title">📊 Full Karat Rate Chart — Excl. GST (Auto Calculated from 24K Base)</div>
     <div style="overflow-x:auto;">
       <table class="bill-table" id="karat-table">
         <thead>
           <tr>
             <th>Karat</th>
-            <th>Purity</th>
+            <th>Purity %</th>
             <th>Fineness</th>
-            <th>Rate / gram (₹)</th>
+            <th>Rate / gram (₹) <span style="color:var(--muted);font-weight:400;">excl. GST</span></th>
             <th>Rate / 10g (₹)</th>
-            <th>Rate / tola/11.66g (₹)</th>
+            <th>Rate / tola 11.66g (₹)</th>
             <th>Status</th>
           </tr>
         </thead>
@@ -923,10 +923,10 @@
             <label>Purity</label>
             <select id="c-purity" onchange="calcRate()">
               <option value="1">24K (Pure – 999)</option>
-              <option value="0.9167" selected>22K (916)</option>
-              <option value="0.875">21K (875)</option>
-              <option value="0.75">18K (750)</option>
-              <option value="0.585">14K (585)</option>
+              <option value="0.92" selected>22K (916) – 92%</option>
+              <option value="0.875">21K (875) – 87.5%</option>
+              <option value="0.78">18K (750) – 78%</option>
+              <option value="0.585">14K (585) – 58.5%</option>
             </select>
           </div>
         </div>
@@ -1001,7 +1001,7 @@
           <div class="result-line"><span class="lbl">Gross Weight</span><span class="val" id="r-gross">—</span></div>
           <div class="result-line"><span class="lbl">Wastage Weight Added</span><span class="val" id="r-wastage-wt">—</span></div>
           <div class="result-line"><span class="lbl">Net Billable Weight</span><span class="val" id="r-net-wt">—</span></div>
-          <div class="result-line"><span class="lbl">Rate per gram</span><span class="val" id="r-per-gram">—</span></div>
+          <div class="result-line"><span class="lbl">Rate per gram (excl. GST)</span><span class="val" id="r-per-gram">—</span></div>
           <div class="result-line"><span class="lbl">Metal Value</span><span class="val" id="r-metal">₹0.00</span></div>
           <div class="result-line"><span class="lbl">VA / Making Charges</span><span class="val" id="r-va">₹0.00</span></div>
           <div class="result-line"><span class="lbl">Hallmark Charges</span><span class="val" id="r-is">₹0.00</span></div>
@@ -1289,44 +1289,51 @@
 
 
       <div class="card">
-        <div class="card-title">📦 Data Storage & Backup</div>
+        <div class="card-title">📦 Data Storage</div>
 
-        <!-- Storage Status -->
-        <div id="storage-status-box" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:14px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-            <span style="font-size:12px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;">Storage Status</span>
-            <span id="storage-type-badge" style="font-size:11px;padding:2px 10px;border-radius:20px;background:#1a2a1a;color:#4CAF50;border:1px solid #2a5a2a;">Browser localStorage</span>
+        <!-- Status box -->
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:14px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;">Status</span>
+            <span id="storage-badge" style="font-size:11px;padding:2px 10px;border-radius:20px;background:#1a2a1a;color:#4CAF50;border:1px solid #2a5a2a;">✅ localStorage</span>
           </div>
           <div style="font-size:12px;color:var(--text-dim);">Last saved: <span id="storage-last-saved" style="color:var(--text);">—</span></div>
-          <div style="font-size:12px;color:var(--text-dim);margin-top:2px;">Products: <span id="storage-products-count" style="color:var(--gold);">0</span> &nbsp;|&nbsp; Invoice count: <span id="storage-inv-count" style="color:var(--gold);">—</span></div>
-          <div id="storage-file-handle-row" style="display:none;margin-top:6px;font-size:12px;color:var(--text-dim);">Linked file: <span id="storage-file-name" style="color:var(--blue);">—</span></div>
-        </div>
-
-        <!-- Primary: File System Access (Android Internal Storage) -->
-        <div style="margin-bottom:10px;">
-          <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">📱 Internal Storage (Android)</div>
-          <div style="display:flex;flex-direction:column;gap:8px;">
-            <button class="btn btn-gold btn-sm" onclick="saveToInternalStorage()">💾 Save to Internal Storage</button>
-            <button class="btn btn-outline btn-sm" onclick="loadFromInternalStorage()">📂 Load from Internal Storage</button>
-            <button class="btn btn-outline btn-sm" onclick="linkStorageFile()">🔗 Link a Storage File</button>
+          <div style="font-size:12px;color:var(--text-dim);margin-top:2px;">
+            Products: <span id="storage-products-count" style="color:var(--gold);">0</span>
+            &nbsp;|&nbsp; Invoices: <span id="storage-inv-count" style="color:var(--gold);">—</span>
           </div>
-          <p style="font-size:11px;color:var(--muted);margin-top:8px;line-height:1.5;">Saves <code style="background:#222;padding:1px 5px;border-radius:3px;">swarna-data.json</code> directly to your phone's Downloads / Documents folder. Requires Chrome on Android.</p>
+          <div id="folder-status-row" style="display:none;margin-top:8px;padding:8px;background:#001a00;border:1px solid #2a5a2a;border-radius:6px;">
+            <div style="font-size:11px;color:#4CAF50;">📁 Auto-save folder linked:</div>
+            <div id="folder-name-display" style="font-size:12px;color:var(--text);margin-top:2px;word-break:break-all;"></div>
+            <div style="font-size:10px;color:var(--muted);margin-top:3px;">Every save automatically writes to this folder</div>
+          </div>
         </div>
 
-        <div style="border-top:1px solid var(--border);margin:12px 0;"></div>
+        <!-- Folder Link (primary) -->
+        <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">📁 Link Device Folder</div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;">
+          <button class="btn btn-gold btn-sm" onclick="linkFolder()">📂 Choose Folder on Device</button>
+          <button class="btn btn-outline btn-sm" id="btn-save-folder" onclick="saveToFolder()" style="display:none;">💾 Save Now to Folder</button>
+          <button class="btn btn-outline btn-sm" id="btn-unlink-folder" onclick="unlinkFolder()" style="display:none;">✕ Unlink Folder</button>
+        </div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.6;background:var(--surface);border-radius:6px;padding:8px;margin-bottom:14px;">
+          💡 <strong style="color:var(--text);">How it works:</strong> Choose any folder on your phone (e.g. Downloads → SwarnaSoft). The app saves <code style="background:#222;padding:1px 4px;border-radius:3px;">swarna-data.json</code> there automatically every time you make a change. Even if Chrome cache is cleared, your data file stays safe in that folder.
+        </div>
 
-        <!-- Fallback: Classic export/import -->
+        <div style="border-top:1px solid var(--border);margin-bottom:14px;"></div>
+
+        <!-- Manual backup -->
         <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">🔄 Manual Backup</div>
         <div style="display:flex;flex-direction:column;gap:8px;">
-          <button class="btn btn-outline btn-sm" onclick="exportData()">⬇️ Export Backup (JSON file)</button>
+          <button class="btn btn-outline btn-sm" onclick="exportData()">⬇️ Download Backup (JSON)</button>
           <label style="all:unset;">
-            <div class="btn btn-outline btn-sm" style="cursor:pointer;display:flex;align-items:center;gap:7px;" onclick="document.getElementById('import-file').click()">⬆️ Restore from Backup file</div>
+            <div class="btn btn-outline btn-sm" style="cursor:pointer;display:flex;align-items:center;gap:7px;" onclick="document.getElementById('import-file').click()">⬆️ Restore from Backup</div>
           </label>
           <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
         </div>
 
-        <div style="border-top:1px solid var(--border);margin:12px 0;"></div>
-        <button class="btn btn-danger btn-sm btn-block" onclick="if(confirm('This will erase ALL data including products, rates and settings. Continue?')) resetAll()">⚠️ Reset All Data</button>
+        <div style="border-top:1px solid var(--border);margin:14px 0;"></div>
+        <button class="btn btn-danger btn-sm btn-block" onclick="resetAll()">⚠️ Reset All Data</button>
       </div>
 
     </div>
@@ -1335,6 +1342,20 @@
 
 <!-- PRINT AREA -->
 <div id="print-area"></div>
+
+<!-- CONFIRM MODAL -->
+<div id="modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:2000;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:24px;max-width:320px;width:100%;">
+    <div id="modal-msg" style="font-size:15px;color:var(--text);margin-bottom:18px;line-height:1.5;"></div>
+    <div id="modal-input-wrap" style="display:none;margin-bottom:14px;">
+      <input type="text" id="modal-input" style="width:100%;padding:10px;font-size:14px;background:var(--surface);border:1px solid var(--gold);border-radius:8px;color:var(--text);outline:none;">
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button id="modal-cancel" class="btn btn-outline" style="flex:1;" onclick="closeModal()">Cancel</button>
+      <button id="modal-ok" class="btn btn-gold" style="flex:1;" onclick="modalOK()">Confirm</button>
+    </div>
+  </div>
+</div>
 
 <!-- TOAST -->
 <div id="toast"></div>
@@ -1366,31 +1387,48 @@ let invoiceCount = 1;
 
 // Karat purity definitions — must be declared before init() calls renderDashboard()
 const KARATS = [
-  { label: '24K', fineness: '999', purity: 1,       code: 'gold24', cls: 'kb-24k' },
-  { label: '22K', fineness: '916', purity: 0.9167,  code: 'gold22', cls: 'kb-22k' },
-  { label: '21K', fineness: '875', purity: 0.875,   code: 'gold21', cls: 'kb-21k' },
-  { label: '18K', fineness: '750', purity: 0.75,    code: 'gold18', cls: 'kb-18k' },
-  { label: '14K', fineness: '585', purity: 0.585,   code: 'gold14', cls: 'kb-14k' },
-  { label: '10K', fineness: '417', purity: 0.417,   code: 'gold10', cls: 'kb-14k' },
+  { label: '24K', fineness: '999', purity: 1,     code: 'gold24', cls: 'kb-24k' },
+  { label: '22K', fineness: '916', purity: 0.92,  code: 'gold22', cls: 'kb-22k' },
+  { label: '21K', fineness: '875', purity: 0.875, code: 'gold21', cls: 'kb-21k' },
+  { label: '18K', fineness: '750', purity: 0.78,  code: 'gold18', cls: 'kb-18k' },
+  { label: '14K', fineness: '585', purity: 0.585, code: 'gold14', cls: 'kb-14k' },
+  { label: '10K', fineness: '417', purity: 0.417, code: 'gold10', cls: 'kb-14k' },
 ];
 
 function renderDashboard() {
   const r24k = state.settings.goldRate || 0;
   const silverRate = state.settings.silverRate || 0;
+  const gstRate = (state.settings.gst || 3) / 100;
+  const gstDiv  = 1 + gstRate; // divide by this to get excl-GST
+
   document.getElementById('dash-24k-display').textContent = r24k ? '₹' + fmt(r24k) : '₹—';
-  document.getElementById('dash-tile-24k').textContent = r24k ? '₹' + fmt(r24k) : '₹—';
-  const perGram24k = r24k / 10;
-  const silverPerGram = silverRate / 1000;
-  setText('dr-916',       r24k ? '₹' + (perGram24k * 0.9167).toFixed(2) : '—');
-  setText('dr-875',       r24k ? '₹' + (perGram24k * 0.875).toFixed(2)  : '—');
-  setText('dr-750',       r24k ? '₹' + (perGram24k * 0.75).toFixed(2)   : '—');
-  setText('dr-585',       r24k ? '₹' + (perGram24k * 0.585).toFixed(2)  : '—');
-  setText('dr-silver',    silverRate ? '₹' + (silverPerGram * 0.925).toFixed(2) : '—');
-  setText('dr-silver999', silverRate ? '₹' + (silverPerGram * 0.999).toFixed(2) : '—');
-  setText('dash-tile-22k',    r24k ? '₹' + (perGram24k * 0.9167).toFixed(2) : '₹—');
-  setText('dash-tile-18k',    r24k ? '₹' + (perGram24k * 0.75).toFixed(2)   : '₹—');
-  setText('dash-tile-silver', silverRate ? '₹' + fmt(silverRate) : '₹—');
-  document.getElementById('hdr-rate-gold').textContent   = r24k      ? '₹' + fmt(r24k)      : '₹—';
+  document.getElementById('dash-tile-24k').textContent    = r24k ? '₹' + fmt(r24k) : '₹—';
+
+  const perGram24k    = r24k / 10;                          // incl-GST per gram (24K)
+  const silverPerGram = silverRate / 1000;                  // incl-GST per gram (silver)
+
+  // Derived incl-GST rates per gram for each karat
+  const incl916  = perGram24k * 0.92;
+  const incl875  = perGram24k * 0.875;
+  const incl750  = perGram24k * 0.78;
+  const incl585  = perGram24k * 0.585;
+  const inclS925 = silverPerGram * 0.925;
+  const inclS999 = silverPerGram * 0.999;
+
+  // Display excl-GST rates (incl ÷ 1.0gst)
+  setText('dr-916',       r24k       ? '₹' + Math.round(incl916  / gstDiv).toLocaleString('en-IN') : '—');
+  setText('dr-875',       r24k       ? '₹' + Math.round(incl875  / gstDiv).toLocaleString('en-IN') : '—');
+  setText('dr-750',       r24k       ? '₹' + Math.round(incl750  / gstDiv).toLocaleString('en-IN') : '—');
+  setText('dr-585',       r24k       ? '₹' + Math.round(incl585  / gstDiv).toLocaleString('en-IN') : '—');
+  setText('dr-silver',    silverRate ? '₹' + Math.round(inclS925 / gstDiv).toLocaleString('en-IN') : '—');
+  setText('dr-silver999', silverRate ? '₹' + Math.round(inclS999 / gstDiv).toLocaleString('en-IN') : '—');
+
+  // Tiles show excl-GST per gram
+  setText('dash-tile-22k',    r24k       ? '₹' + Math.round(incl916  / gstDiv).toLocaleString('en-IN') : '₹—');
+  setText('dash-tile-18k',    r24k       ? '₹' + Math.round(incl750  / gstDiv).toLocaleString('en-IN') : '₹—');
+  setText('dash-tile-silver', silverRate ? '₹' + fmt(silverRate)                                         : '₹—');
+
+  document.getElementById('hdr-rate-gold').textContent   = r24k       ? '₹' + fmt(r24k)       : '₹—';
   document.getElementById('hdr-rate-silver').textContent = silverRate ? '₹' + fmt(silverRate) : '₹—';
   renderKaratTable(r24k, silverRate);
   renderRateHistory();
@@ -1399,16 +1437,17 @@ function renderDashboard() {
 function dashPreviewRates() {
   const val = parseFloat(document.getElementById('dash-input-24k').value) || 0;
   if (!val) return;
+  const gstDiv = 1 + (state.settings.gst || 3) / 100;
   const pg = val / 10;
-  setText('dr-916', '₹' + (pg * 0.9167).toFixed(2));
-  setText('dr-875', '₹' + (pg * 0.875).toFixed(2));
-  setText('dr-750', '₹' + (pg * 0.75).toFixed(2));
-  setText('dr-585', '₹' + (pg * 0.585).toFixed(2));
+  setText('dr-916', '₹' + Math.round(pg * 0.92  / gstDiv).toLocaleString('en-IN'));
+  setText('dr-875', '₹' + Math.round(pg * 0.875 / gstDiv).toLocaleString('en-IN'));
+  setText('dr-750', '₹' + Math.round(pg * 0.78  / gstDiv).toLocaleString('en-IN'));
+  setText('dr-585', '₹' + Math.round(pg * 0.585 / gstDiv).toLocaleString('en-IN'));
   document.getElementById('dash-24k-display').textContent = '₹' + fmt(val);
   const sv = parseFloat(document.getElementById('dash-input-silver').value) || 0;
   if (sv) {
-    setText('dr-silver',    '₹' + (sv / 1000 * 0.925).toFixed(2));
-    setText('dr-silver999', '₹' + (sv / 1000 * 0.999).toFixed(2));
+    setText('dr-silver',    '₹' + Math.round(sv / 1000 * 0.925 / gstDiv).toLocaleString('en-IN'));
+    setText('dr-silver999', '₹' + Math.round(sv / 1000 * 0.999 / gstDiv).toLocaleString('en-IN'));
   }
   renderKaratTable(val, sv);
 }
@@ -1461,17 +1500,23 @@ function renderKaratTable(r24k, silverRate) {
     tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px;">Save a 24K rate to see all karat calculations</td></tr>';
     return;
   }
-  const perGram24k = r24k / 10;
+  const gstDiv    = 1 + (state.settings.gst || 3) / 100;
+  const perGram24k = r24k / 10; // incl-GST per gram for 24K
   const rows = KARATS.map(k => {
-    const pg = perGram24k * k.purity;
+    const inclPg = perGram24k * k.purity;           // incl-GST per gram
+    const exclPg = inclPg / gstDiv;                 // excl-GST per gram (displayed)
     const rowCls = k.code === 'gold22' ? 'karat-row-gold22' : k.code === 'gold24' ? 'karat-row-gold24' : '';
+    const purityLabel = { gold24:'100%', gold22:'92%', gold21:'87.5%', gold18:'78%', gold14:'58.5%', gold10:'41.7%' }[k.code] || (k.purity*100)+'%';
     return `<tr class="${rowCls}">
       <td><span class="karat-badge ${k.cls}">${k.label}</span></td>
-      <td style="color:var(--text-dim)">${k.purity * 100}%</td>
+      <td style="color:var(--text-dim)">${purityLabel}</td>
       <td style="font-family:'DM Mono',monospace;color:var(--text-dim)">${k.fineness}</td>
-      <td style="font-family:'DM Mono',monospace;color:var(--gold-light);font-weight:600;">₹${pg.toFixed(2)}</td>
-      <td style="font-family:'DM Mono',monospace;">₹${(pg*10).toFixed(2)}</td>
-      <td style="font-family:'DM Mono',monospace;">₹${(pg*11.66).toFixed(2)}</td>
+      <td style="font-family:'DM Mono',monospace;color:var(--gold-light);font-weight:600;">
+        ₹${Math.round(exclPg).toLocaleString('en-IN')}
+        <span style="font-size:10px;color:var(--muted);font-weight:400;"> (₹${Math.round(inclPg).toLocaleString('en-IN')} incl.GST)</span>
+      </td>
+      <td style="font-family:'DM Mono',monospace;">₹${Math.round(exclPg*10).toLocaleString('en-IN')}</td>
+      <td style="font-family:'DM Mono',monospace;">₹${Math.round(exclPg*11.66).toLocaleString('en-IN')}</td>
       <td><span style="font-size:11px;padding:2px 8px;border-radius:4px;background:#1a2a1a;color:#4CAF50;border:1px solid #2a4a2a;">Live</span></td>
     </tr>`;
   });
@@ -1512,8 +1557,8 @@ function renderRateHistory() {
         ${h.silver ? `<div class="rh-k22">Silver: ₹${fmt(h.silver)}/kg</div>` : ''}
       </div>
       <div style="text-align:right;">
-        <div class="rh-k22">22K (916): ₹${(h.rate24k/10*0.9167).toFixed(2)}/g</div>
-        <div class="rh-k22">18K (750): ₹${(h.rate24k/10*0.75).toFixed(2)}/g</div>
+        <div class="rh-k22">22K excl.GST: ₹${Math.round(h.rate24k/10*0.92/1.03).toLocaleString('en-IN')}/g</div>
+        <div class="rh-k22">18K excl.GST: ₹${Math.round(h.rate24k/10*0.78/1.03).toLocaleString('en-IN')}/g</div>
       </div>
       <div style="text-align:right;">
         <div class="rh-date">${h.date}</div>
@@ -1523,17 +1568,16 @@ function renderRateHistory() {
 }
 
 function clearRateHistory() {
-  if (!confirm('Clear all rate history?')) return;
-  state.rateHistory = [];
-  saveState();
-  renderRateHistory();
+  showConfirm('Clear all rate history?', () => {
+    state.rateHistory = [];
+    saveState();
+    renderRateHistory();
+  });
 }
 
 // ═══════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════
-var _fileHandle = null;  // persists the linked file handle for the session
-
 (function init() {
   loadFromLocalStorage();
   loadSettings();
@@ -1549,36 +1593,92 @@ var _fileHandle = null;  // persists the linked file handle for the session
 })();
 
 // ═══════════════════════════════════════════
-// STORAGE SYSTEM
-// Uses File System Access API (Android internal storage)
-// Falls back to localStorage automatically
+// STORAGE — localStorage only
 // ═══════════════════════════════════════════
 
+// ═══════════════════════════════════════════
+// STORAGE — localStorage + optional folder link
+// ═══════════════════════════════════════════
+
+var _folderHandle = null; // linked folder (File System Access API)
+var _autoSaveTimer = null;
 
 function getStatePayload() {
   return {
-    products: state.products,
-    settings: state.settings,
+    products:    state.products,
+    settings:    state.settings,
     invoiceCount,
     rateHistory: state.rateHistory || [],
-    bills: state.bills,
-    _savedAt: new Date().toISOString(),
-    _version: '3.2'
+    bills:       state.bills,
+    _savedAt:    new Date().toISOString(),
+    _version:    '3.4'
   };
 }
 
-// ── LOCALSTORAGE (always runs as baseline) ──
-function saveToLocalStorage() {
+// ── SAVE (always localStorage + folder if linked) ──
+function saveState() {
   try {
-    const payload = getStatePayload();
-    localStorage.setItem('swarna_state', JSON.stringify(payload));
+    localStorage.setItem('swarna_state',      JSON.stringify(getStatePayload()));
     localStorage.setItem('swarna_last_saved', new Date().toLocaleString('en-IN'));
     updateStorageStatusUI();
   } catch(e) {
-    console.warn('localStorage save failed:', e);
+    toast('⚠️ Storage full — please download a backup');
+  }
+  // If folder is linked, auto-write to file (debounced 2s)
+  if (_folderHandle) {
+    clearTimeout(_autoSaveTimer);
+    _autoSaveTimer = setTimeout(() => writeToFolder(_folderHandle), 2000);
   }
 }
 
+// ── WRITE JSON FILE INTO LINKED FOLDER ──
+async function writeToFolder(dirHandle) {
+  try {
+    const fileHandle = await dirHandle.getFileHandle('swarna-data.json', { create: true });
+    const writable   = await fileHandle.createWritable();
+    await writable.write(JSON.stringify(getStatePayload(), null, 2));
+    await writable.close();
+    localStorage.setItem('swarna_folder_name', dirHandle.name);
+    updateStorageStatusUI();
+  } catch(e) {
+    console.warn('Folder write failed:', e.message);
+  }
+}
+
+// ── LINK A FOLDER ──
+async function linkFolder() {
+  if (!('showDirectoryPicker' in window)) {
+    toast('❌ Your browser does not support folder access. Use Chrome on Android.');
+    return;
+  }
+  try {
+    const dirHandle = await window.showDirectoryPicker({ mode: 'readwrite', startIn: 'downloads' });
+    _folderHandle = dirHandle;
+    localStorage.setItem('swarna_folder_name', dirHandle.name);
+    await writeToFolder(dirHandle);
+    updateStorageStatusUI();
+    toast('✅ Folder linked: ' + dirHandle.name + ' — auto-saving here now');
+  } catch(e) {
+    if (e.name !== 'AbortError') toast('❌ ' + e.message);
+  }
+}
+
+// ── MANUALLY SAVE TO FOLDER NOW ──
+async function saveToFolder() {
+  if (!_folderHandle) { toast('No folder linked'); return; }
+  await writeToFolder(_folderHandle);
+  toast('✅ Saved to folder: ' + _folderHandle.name);
+}
+
+// ── UNLINK FOLDER ──
+function unlinkFolder() {
+  _folderHandle = null;
+  localStorage.removeItem('swarna_folder_name');
+  updateStorageStatusUI();
+  toast('Folder unlinked');
+}
+
+// ── LOAD FROM LOCALSTORAGE ──
 function loadFromLocalStorage() {
   try {
     const saved = localStorage.getItem('swarna_state');
@@ -1588,161 +1688,57 @@ function loadFromLocalStorage() {
     state.settings    = { ...state.settings, ...parsed.settings };
     invoiceCount      = parsed.invoiceCount || 1;
     state.rateHistory = parsed.rateHistory  || [];
-    // Restore bills; fall back to single empty bill
-    if (parsed.bills && parsed.bills.length > 0) {
-      state.bills = parsed.bills;
-    } else {
-      state.bills = [{ items: [], label: 'Bill 1', custName:'', custPhone:'', custAddr:'', custGstin:'' }];
-    }
-    return true;
-  } catch(e) {
-    return false;
-  }
-}
-
-// ── MAIN saveState (called everywhere) ──
-function saveState() {
-  saveToLocalStorage();
-  // If a file handle is linked, auto-write to internal storage too
-  if (_fileHandle) {
-    writeToFileHandle(_fileHandle).catch(() => {});
-  }
-}
-
-// ── FILE SYSTEM ACCESS API ──
-async function writeToFileHandle(handle) {
-  try {
-    const writable = await handle.createWritable();
-    await writable.write(JSON.stringify(getStatePayload(), null, 2));
-    await writable.close();
-    localStorage.setItem('swarna_last_saved', new Date().toLocaleString('en-IN'));
-    updateStorageStatusUI(handle.name);
-    return true;
-  } catch(e) {
-    console.warn('File write failed:', e);
-    return false;
-  }
-}
-
-// Save to internal storage — shows OS file picker to choose location
-async function saveToInternalStorage() {
-  if (!('showSaveFilePicker' in window)) {
-    // Fallback: trigger download
-    exportData();
-    toast('📥 File System API not supported — file downloaded to Downloads folder');
-    return;
-  }
-  try {
-    const handle = await window.showSaveFilePicker({
-      suggestedName: 'swarna-data.json',
-      types: [{ description: 'SwarnaSoft Data', accept: { 'application/json': ['.json'] } }],
-      startIn: 'downloads'
-    });
-    _fileHandle = handle;
-    const ok = await writeToFileHandle(handle);
-    if (ok) {
-      toast('✅ Saved to: ' + handle.name);
-      updateStorageStatusUI(handle.name);
-    }
-  } catch(e) {
-    if (e.name !== 'AbortError') toast('❌ Save failed: ' + e.message);
-  }
-}
-
-// Load from internal storage — shows OS file picker to choose file
-async function loadFromInternalStorage() {
-  if (!('showOpenFilePicker' in window)) {
-    document.getElementById('import-file').click();
-    toast('📂 File System API not supported — use the file picker above');
-    return;
-  }
-  try {
-    const [handle] = await window.showOpenFilePicker({
-      types: [{ description: 'SwarnaSoft Data', accept: { 'application/json': ['.json'] } }],
-      startIn: 'downloads'
-    });
-    _fileHandle = handle;
-    const file = await handle.getFile();
-    const text = await file.text();
-    const parsed = JSON.parse(text);
-    state.products    = parsed.products    || [];
-    state.settings    = { ...state.settings, ...parsed.settings };
-    invoiceCount      = parsed.invoiceCount || 1;
-    state.rateHistory = parsed.rateHistory  || [];
     state.bills       = (parsed.bills && parsed.bills.length > 0)
       ? parsed.bills
       : [{ items:[], label:'Bill 1', custName:'', custPhone:'', custAddr:'', custGstin:'' }];
-    activeBillIndex   = 0;
-    saveToLocalStorage();
-    loadSettings();
-    renderLibrary();
-    renderDashboard();
-    renderBillTabs();
-    loadCustFromBill(0);
-    renderBillTable();
-    recalcBill();
-    updateStorageStatusUI(handle.name);
-    toast('✅ Loaded from: ' + handle.name);
-  } catch(e) {
-    if (e.name !== 'AbortError') toast('❌ Load failed: ' + e.message);
-  }
+    return true;
+  } catch(e) { return false; }
 }
 
-// Link a file — next saveState() will auto-write to it
-async function linkStorageFile() {
-  if (!('showOpenFilePicker' in window)) {
-    toast('❌ File System API not available on this browser');
-    return;
-  }
-  try {
-    const [handle] = await window.showOpenFilePicker({
-      types: [{ description: 'SwarnaSoft Data', accept: { 'application/json': ['.json'] } }],
-      startIn: 'downloads'
-    });
-    _fileHandle = handle;
-    updateStorageStatusUI(handle.name);
-    toast('🔗 Linked: ' + handle.name + ' — all saves will write to this file');
-  } catch(e) {
-    if (e.name !== 'AbortError') toast('❌ ' + e.message);
-  }
-}
-
-function updateStorageStatusUI(fileName) {
-  const lastSaved = localStorage.getItem('swarna_last_saved') || '—';
-  const el = document.getElementById('storage-last-saved');
+// ── UPDATE STATUS UI ──
+function updateStorageStatusUI() {
+  const lastSaved  = localStorage.getItem('swarna_last_saved') || '—';
+  const folderName = localStorage.getItem('swarna_folder_name') || '';
+  const el  = document.getElementById('storage-last-saved');
   const elP = document.getElementById('storage-products-count');
   const elI = document.getElementById('storage-inv-count');
-  const badge = document.getElementById('storage-type-badge');
-  const fileRow = document.getElementById('storage-file-handle-row');
-  const fileNameEl = document.getElementById('storage-file-name');
-  if (el) el.textContent = lastSaved;
+  const badge       = document.getElementById('storage-badge');
+  const folderRow   = document.getElementById('folder-status-row');
+  const folderDisp  = document.getElementById('folder-name-display');
+  const btnSave     = document.getElementById('btn-save-folder');
+  const btnUnlink   = document.getElementById('btn-unlink-folder');
+  if (el)  el.textContent  = lastSaved;
   if (elP) elP.textContent = state.products.length;
   if (elI) elI.textContent = invoiceCount;
-  if (fileName || _fileHandle) {
-    const name = fileName || (_fileHandle && _fileHandle.name) || '—';
-    if (badge) { badge.textContent = '📱 Internal Storage'; badge.style.background='#001a2a'; badge.style.color='#64B5F6'; badge.style.borderColor='#1a4a7a'; }
-    if (fileRow) fileRow.style.display = '';
-    if (fileNameEl) fileNameEl.textContent = name;
+  if (_folderHandle || folderName) {
+    const name = _folderHandle ? _folderHandle.name : folderName;
+    if (badge)      { badge.textContent = '✅ localStorage + 📁 Folder'; badge.style.background='#001a0a'; badge.style.color='#4CAF50'; }
+    if (folderRow)  folderRow.style.display = '';
+    if (folderDisp) folderDisp.textContent = name + '/swarna-data.json';
+    if (btnSave)    btnSave.style.display  = '';
+    if (btnUnlink)  btnUnlink.style.display = '';
   } else {
-    if (badge) { badge.textContent = 'Browser localStorage'; badge.style.background='#1a2a1a'; badge.style.color='#4CAF50'; badge.style.borderColor='#2a5a2a'; }
-    if (fileRow) fileRow.style.display = 'none';
+    if (badge)     { badge.textContent = '✅ localStorage'; badge.style.background='#1a2a1a'; badge.style.color='#4CAF50'; badge.style.borderColor='#2a5a2a'; }
+    if (folderRow) folderRow.style.display = 'none';
+    if (btnSave)   btnSave.style.display   = 'none';
+    if (btnUnlink) btnUnlink.style.display = 'none';
   }
 }
 
-// ── CLASSIC EXPORT (manual backup download) ──
+// ── EXPORT BACKUP ──
 function exportData() {
   const data = JSON.stringify(getStatePayload(), null, 2);
-  const a = document.createElement('a');
-  a.href = 'data:application/json;charset=utf-8,' + encodeURIComponent(data);
-  const d = new Date();
-  a.download = 'swarna-backup-' + d.getFullYear() + ('0'+(d.getMonth()+1)).slice(-2) + ('0'+d.getDate()).slice(-2) + '.json';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  toast('📥 Backup downloaded');
+  const a    = document.createElement('a');
+  const d    = new Date();
+  a.href     = 'data:application/json;charset=utf-8,' + encodeURIComponent(data);
+  a.download = 'swarna-backup-' + d.getFullYear() +
+               ('0'+(d.getMonth()+1)).slice(-2) +
+               ('0'+d.getDate()).slice(-2) + '.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  toast('📥 Backup downloaded to Downloads folder');
 }
 
-// ── CLASSIC IMPORT (file picker fallback) ──
+// ── IMPORT BACKUP ──
 function importData(e) {
   const file = e.target.files[0];
   if (!file) return;
@@ -1758,7 +1754,7 @@ function importData(e) {
         ? parsed.bills
         : [{ items:[], label:'Bill 1', custName:'', custPhone:'', custAddr:'', custGstin:'' }];
       activeBillIndex   = 0;
-      saveToLocalStorage();
+      saveState();
       loadSettings();
       renderLibrary();
       renderDashboard();
@@ -1766,22 +1762,22 @@ function importData(e) {
       loadCustFromBill(0);
       renderBillTable();
       recalcBill();
-      updateStorageStatusUI();
-      toast('✅ Data restored from backup');
-    } catch { toast('❌ Invalid or corrupted file'); }
+      toast('✅ Data restored successfully');
+    } catch { toast('❌ Invalid or corrupted backup file'); }
   };
   reader.readAsText(file);
   e.target.value = '';
 }
 
-// ── RESET ──
 function resetAll() {
-  localStorage.removeItem('swarna_state');
-  localStorage.removeItem('swarna_last_saved');
-  _fileHandle = null;
-  location.reload();
+  showConfirm('⚠️ Erase ALL data including products, rates and settings? This cannot be undone.', () => {
+    localStorage.removeItem('swarna_state');
+    localStorage.removeItem('swarna_last_saved');
+    localStorage.removeItem('swarna_folder_name');
+    _folderHandle = null;
+    location.reload();
+  });
 }
-
 
 
 // ═══════════════════════════════════════════
@@ -1858,7 +1854,14 @@ function switchBill(idx) {
 function closeBill(idx, e) {
   e.stopPropagation();
   if (state.bills.length <= 1) { toast('Cannot close the last bill'); return; }
-  if (state.bills[idx].items.length > 0 && !confirm('Close "' + state.bills[idx].label + '"? Items will be lost.')) return;
+  if (state.bills[idx].items.length > 0) {
+    showConfirm('Close "' + state.bills[idx].label + '"? Items will be lost.', () => doCloseBill(idx));
+    return;
+  }
+  doCloseBill(idx);
+}
+
+function doCloseBill(idx) {
   state.bills.splice(idx, 1);
   activeBillIndex = Math.min(activeBillIndex, state.bills.length - 1);
   switchBill(activeBillIndex);
@@ -1866,8 +1869,9 @@ function closeBill(idx, e) {
 }
 
 function renameBill(idx) {
-  const name = prompt('Rename bill:', state.bills[idx].label);
-  if (name && name.trim()) { state.bills[idx].label = name.trim(); renderBillTabs(); saveState(); }
+  showPrompt('Rename bill:', state.bills[idx].label, (name) => {
+    if (name && name.trim()) { state.bills[idx].label = name.trim(); renderBillTabs(); saveState(); }
+  });
 }
 
 function renderBillTabs() {
@@ -1939,21 +1943,44 @@ function addManualItem() {
 }
 
 function computeItemPrice(product, goldRate, silverRate, vaPct, isPct, gstPct) {
-  const g = product.weight || 0;
-  const stone = product.stone || 0;
-  const metalWeight = g - stone;
-  const wastageWt = metalWeight * (product.wastage / 100);
-  const netWt = metalWeight + wastageWt;
-  const purityMap = { gold24:1, gold22:0.9167, gold18:0.75, silver:1 };
-  const purity = purityMap[product.metal] || 0.9167;
-  const ratePerGram = product.metal === 'silver' ? (silverRate/1000)*purity : (goldRate/10)*purity;
-  const metalVal = Math.round(netWt * ratePerGram);
-  const vaAmt    = Math.round(metalVal * (vaPct / 100));
-  const isAmt    = Math.round(isPct);
-  const sub      = metalVal + vaAmt + isAmt;
-  const gstAmt   = Math.round(sub * (gstPct / 100));
-  const total    = sub + gstAmt;
-  return { metalVal, vaAmt, isAmt, sub, gstAmt, total, netWt, wastageWt, ratePerGram };
+  const g           = product.weight || 0;
+  const stone       = product.stone  || 0;
+  const grossWeight = g - stone;                          // weight without stone
+  const wastageWt   = grossWeight * (product.wastage / 100);
+  const netWt       = grossWeight + wastageWt;             // billable weight
+
+  // ── STEP 1: Inclusive-GST rate per gram for this karat ──
+  const purityMap   = { gold24:1, gold22:0.92, gold18:0.78, silver:1 };
+  const purity      = purityMap[product.metal] || 0.92;
+  // goldRate is entered as ₹ per 10g for 24K (inclusive of GST)
+  const inclGSTRate = product.metal === 'silver'
+    ? (silverRate / 1000) * purity          // silver: per gram incl GST
+    : (goldRate / 10) * purity;             // gold:   per gram incl GST
+
+  // ── STEP 2: Excl-GST rate per gram (what is displayed & used in calc) ──
+  const exclGSTRate = inclGSTRate / (1 + gstPct / 100);
+  const ratePerGram = exclGSTRate;          // this is stored & shown in the table
+
+  // ── STEP 3: Metal value = net weight × excl-GST rate ──
+  const metalVal = Math.round(netWt * exclGSTRate);
+
+  // ── STEP 4: VA = gross weight × VA% × excl-GST rate ──
+  // (VA is on the weight basis, not a % of metalVal)
+  const vaAmt = Math.round(grossWeight * (vaPct / 100) * exclGSTRate);
+
+  // ── STEP 5: Hallmark flat charge ──
+  const isAmt = Math.round(isPct);
+
+  // ── STEP 6: Sub total (before GST) ──
+  const sub = metalVal + vaAmt + isAmt;
+
+  // ── STEP 7: GST on sub total ──
+  const gstAmt = Math.round(sub * (gstPct / 100));
+
+  // ── STEP 8: Grand total ──
+  const total = sub + gstAmt;
+
+  return { metalVal, vaAmt, isAmt, sub, gstAmt, total, netWt, wastageWt, ratePerGram, exclGSTRate, inclGSTRate };
 }
 
 function renderBillTable() {
@@ -2038,10 +2065,26 @@ function sum(key) {
 }
 
 function clearBill() {
-  if (!confirm('Clear all items from current bill?')) return;
+  if (state.bills[activeBillIndex].items.length === 0) { toast('Bill is already empty'); return; }
+  // Save snapshot for undo
+  const snapshot = JSON.parse(JSON.stringify(state.bills[activeBillIndex].items));
   state.bills[activeBillIndex].items = [];
   renderBillTable(); recalcBill(); renderBillTabs();
   invoiceCount++; setInvoiceNo();
+  // Show undo toast
+  const t = document.getElementById('toast');
+  t.innerHTML = '🗑️ Bill cleared &nbsp;<button onclick="undoClear('+JSON.stringify(snapshot).replace(/"/g,'&quot;')+')" style="background:var(--gold);color:#000;border:none;border-radius:4px;padding:3px 10px;font-size:12px;cursor:pointer;margin-left:6px;">Undo</button>';
+  t.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => t.classList.remove('show'), 5000);
+}
+
+function undoClear(snapshot) {
+  state.bills[activeBillIndex].items = snapshot;
+  invoiceCount = Math.max(1, invoiceCount - 1);
+  setInvoiceNo();
+  renderBillTable(); recalcBill(); renderBillTabs();
+  toast('↩️ Restored');
 }
 
 function setInvoiceNo() {
@@ -2062,62 +2105,70 @@ function toggleMetal(type) {
 }
 
 function calcRate() {
-  const va = parseFloat(v('c-va')) || 0;
-  const is_ = parseFloat(v('c-is')) || 0;
-  const gst = parseFloat(v('c-gst')) || 3;
+  const va    = parseFloat(v('c-va'))    || 0;
+  const is_   = parseFloat(v('c-is'))   || 0;
+  const gst   = parseFloat(v('c-gst'))  || 3;
   const extra = parseFloat(v('c-extra')) || 0;
 
-  let gross, wastage, ratePerGram, metalVal, netWt, wastageWt;
+  let gross, wastage, inclGSTRate, exclGSTRate, metalVal, netWt, wastageWt, grossWeight;
 
   if (currentMetal === 'gold') {
-    const goldRate = parseFloat(v('c-gold-rate')) || 0;
-    const purity = parseFloat(v('c-purity')) || 0.9167;
-    gross = parseFloat(v('c-gross')) || 0;
-    const stone = parseFloat(v('c-stone')) || 0;
-    wastage = parseFloat(v('c-wastage')) || 0;
-    const metalGross = gross - stone;
-    wastageWt = metalGross * (wastage / 100);
-    netWt = metalGross + wastageWt;
-    ratePerGram = (goldRate / 10) * purity;
-    metalVal = netWt * ratePerGram;
+    const goldRate = parseFloat(v('c-gold-rate')) || 0; // per 10g for 24K incl. GST
+    const purity   = parseFloat(v('c-purity'))   || 0.92;
+    gross       = parseFloat(v('c-gross'))   || 0;
+    const stone = parseFloat(v('c-stone'))   || 0;
+    wastage     = parseFloat(v('c-wastage')) || 0;
+    grossWeight = gross - stone;
+    wastageWt   = grossWeight * (wastage / 100);
+    netWt       = grossWeight + wastageWt;
+    // Step 1: incl. GST rate per gram for this karat
+    inclGSTRate = (goldRate / 10) * purity;
+    // Step 2: excl. GST rate (shown in display, used in calculation)
+    exclGSTRate = inclGSTRate / (1 + gst / 100);
+    // Step 3: metal value = net weight × excl. GST rate
+    metalVal    = netWt * exclGSTRate;
     setText('r-hsn', '7113');
   } else {
-    const silverRate = parseFloat(v('c-silver-rate')) || 0;
-    const purity = parseFloat(v('c-silver-purity')) || 0.925;
-    gross = parseFloat(v('c-silver-gross')) || 0;
-    wastage = parseFloat(v('c-silver-wastage')) || 0;
-    wastageWt = gross * (wastage / 100);
-    netWt = gross + wastageWt;
-    ratePerGram = (silverRate / 1000) * purity;
-    metalVal = netWt * ratePerGram;
+    const silverRate = parseFloat(v('c-silver-rate'))   || 0;
+    const purity     = parseFloat(v('c-silver-purity')) || 0.925;
+    gross       = parseFloat(v('c-silver-gross'))   || 0;
+    wastage     = parseFloat(v('c-silver-wastage')) || 0;
+    grossWeight = gross;
+    wastageWt   = gross * (wastage / 100);
+    netWt       = gross + wastageWt;
+    inclGSTRate = (silverRate / 1000) * purity;
+    exclGSTRate = inclGSTRate / (1 + gst / 100);
+    metalVal    = netWt * exclGSTRate;
     setText('r-hsn', '7114');
   }
 
   const metalValR = Math.round(metalVal);
-  const vaAmt  = Math.round(metalValR * (va / 100));
+  // VA = gross weight × VA% × excl-GST rate (NOT % of metalVal)
+  const vaAmt  = Math.round(grossWeight * (va / 100) * exclGSTRate);
   const isAmt  = Math.round(is_);
-  const sub    = metalValR + vaAmt + isAmt + Math.round(extra);
+  const extraR = Math.round(extra);
+  const sub    = metalValR + vaAmt + isAmt + extraR;
   const gstAmt = Math.round(sub * (gst / 100));
   const total  = sub + gstAmt;
   const halfGST = gst / 2;
 
-  setText('r-gross', fmtW(gross) + ' g');
+  setText('r-gross',      fmtW(gross) + ' g');
   setText('r-wastage-wt', fmtW(wastageWt) + ' g (' + wastage + '%)');
-  setText('r-net-wt', fmtW(netWt) + ' g');
-  setText('r-per-gram', '₹' + Math.round(ratePerGram).toLocaleString('en-IN'));
-  setText('r-metal', '₹' + fmt(metalValR));
-  setText('r-va', '₹' + fmt(vaAmt));
-  setText('r-is', '₹' + fmt(isAmt));
-  setText('r-extra', '₹' + fmt(Math.round(extra)));
-  setText('r-sub', '₹' + fmt(sub));
-  setText('r-gst', '₹' + fmt(gstAmt));
-  setText('r-total', '₹' + fmt(total));
-  setText('r-taxable', '₹' + fmt(sub));
-  setText('r-cgst', '₹' + fmt(Math.round(sub * halfGST / 100)));
-  setText('r-sgst', '₹' + fmt(Math.round(sub * halfGST / 100)));
-  setText('r-cgst-pct', halfGST);
-  setText('r-sgst-pct', halfGST);
-  setText('r-inv-total', '₹' + fmt(total));
+  setText('r-net-wt',     fmtW(netWt) + ' g');
+  setText('r-per-gram',   '₹' + Math.round(exclGSTRate).toLocaleString('en-IN') + ' (excl. GST)');
+  setText('r-metal',      '₹' + fmt(metalValR));
+  setText('r-va',         '₹' + fmt(vaAmt));
+  setText('r-is',         '₹' + fmt(isAmt));
+  setText('r-extra',      '₹' + fmt(extraR));
+  setText('r-sub',        '₹' + fmt(sub));
+  setText('r-gst',        '₹' + fmt(gstAmt));
+  setText('r-total',      '₹' + fmt(total));
+  setText('r-taxable',    '₹' + fmt(sub));
+  setText('r-cgst',       '₹' + fmt(Math.round(sub * halfGST / 100)));
+  setText('r-sgst',       '₹' + fmt(Math.round(sub * halfGST / 100)));
+  setText('r-cgst-pct',   halfGST);
+  setText('r-sgst-pct',   halfGST);
+  setText('r-inv-total',  '₹' + fmt(total));
 }
 
 function addCalcToBill() {
@@ -2344,10 +2395,11 @@ function scanFromLibrary(sku) {
 }
 
 function clearLibrary() {
-  if (!confirm('Delete all products?')) return;
-  state.products = [];
-  renderLibrary();
-  saveState();
+  showConfirm('Delete all products from library?', () => {
+    state.products = [];
+    renderLibrary();
+    saveState();
+  });
 }
 
 function printBarcode() {
@@ -2482,12 +2534,13 @@ function handleLogoUpload(event) {
 }
 
 function removeLogo() {
-  if (!confirm('Remove shop logo?')) return;
-  state.settings.shopLogo = '';
-  applyLogoEverywhere(null);
-  document.getElementById('logo-file-info').textContent = '';
-  saveState();
-  toast('🗑️ Logo removed');
+  showConfirm('Remove shop logo?', () => {
+    state.settings.shopLogo = '';
+    applyLogoEverywhere(null);
+    document.getElementById('logo-file-info').textContent = '';
+    saveState();
+    toast('🗑️ Logo removed');
+  });
 }
 
 function applyLogoEverywhere(base64) {
@@ -2604,6 +2657,51 @@ function applyDefaultRates() {
 // ═══════════════════════════════════════════
 // DATA IMPORT / EXPORT
 // ═══════════════════════════════════════════
+
+// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════
+// MODAL — replaces confirm() and prompt() for Android PWA compatibility
+// ═══════════════════════════════════════════
+var _modalCallback = null;
+var _modalIsPrompt = false;
+
+function showConfirm(msg, onOK) {
+  _modalCallback = onOK;
+  _modalIsPrompt = false;
+  document.getElementById('modal-msg').textContent = msg;
+  document.getElementById('modal-input-wrap').style.display = 'none';
+  document.getElementById('modal-ok').textContent = 'Confirm';
+  const overlay = document.getElementById('modal-overlay');
+  overlay.style.display = 'flex';
+}
+
+function showPrompt(msg, defaultVal, onOK) {
+  _modalCallback = onOK;
+  _modalIsPrompt = true;
+  document.getElementById('modal-msg').textContent = msg;
+  document.getElementById('modal-input').value = defaultVal || '';
+  document.getElementById('modal-input-wrap').style.display = '';
+  document.getElementById('modal-ok').textContent = 'OK';
+  const overlay = document.getElementById('modal-overlay');
+  overlay.style.display = 'flex';
+  setTimeout(() => document.getElementById('modal-input').focus(), 100);
+}
+
+function modalOK() {
+  closeModal();
+  if (_modalCallback) {
+    if (_modalIsPrompt) {
+      _modalCallback(document.getElementById('modal-input').value);
+    } else {
+      _modalCallback();
+    }
+  }
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').style.display = 'none';
+  _modalCallback = null;
+}
 
 // ═══════════════════════════════════════════
 // HELPERS
