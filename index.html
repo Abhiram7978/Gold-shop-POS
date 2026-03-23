@@ -2,12 +2,6 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#C9A84C">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="SwarnaSoft">
-<link rel="apple-touch-icon" href="192.png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SwarnaSoft – Gold Shop POS</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -723,15 +717,19 @@
       <input type="number" id="b-silver-rate" placeholder="e.g. 92000" oninput="syncRates()">
     </div>
     <div class="rate-field">
-      <label>VA % (Making)</label>
-      <input type="number" id="b-va" value="12" step="0.5" oninput="recalcBill()">
+      <label>Wastage %</label>
+      <input type="number" id="b-wastage" placeholder="e.g. 14" step="0.1" value="" oninput="recalcBill()">
+    </div>
+    <div class="rate-field">
+      <label>Making %</label>
+      <input type="number" id="b-making" placeholder="e.g. 12" step="0.5" value="" oninput="recalcBill()">
     </div>
     <div class="rate-field">
       <label>GST %</label>
       <input type="number" id="b-gst" value="3" step="0.1" oninput="recalcBill()">
     </div>
     <div class="rate-field">
-      <label>Hallmark Charges (₹)</label>
+      <label>Hallmark (₹)</label>
       <input type="number" id="b-is" value="0" step="1" placeholder="e.g. 45" oninput="recalcBill()">
     </div>
     <button class="btn btn-outline btn-sm" onclick="updateHeaderRates()">Apply</button>
@@ -790,7 +788,8 @@
               <th>Net Wt</th>
               <th>Rate/g (₹)</th>
               <th>Metal Val (₹)</th>
-              <th>VA/Making (₹)</th>
+              <th>Wastage (₹)</th>
+              <th>Making (₹)</th>
               <th>Hallmark (₹)</th>
               <th>GST (₹)</th>
               <th>Total (₹)</th>
@@ -806,11 +805,12 @@
           <tfoot id="bill-tfoot" style="display:none;">
             <tr style="background:#1a1500;font-weight:600;font-family:'DM Mono',monospace;">
               <td colspan="6" style="padding:10px 12px;color:var(--text-dim);font-size:12px;">TOTALS</td>
-              <td id="foot-metal" style="padding:10px 12px;color:var(--gold);">—</td>
-              <td id="foot-va"    style="padding:10px 12px;color:var(--gold);">—</td>
-              <td id="foot-hm"    style="padding:10px 12px;color:var(--gold);">—</td>
-              <td id="foot-gst"   style="padding:10px 12px;color:var(--gold);">—</td>
-              <td id="foot-total" style="padding:10px 12px;color:var(--gold-light);font-size:15px;">—</td>
+              <td id="foot-metal"   style="padding:10px 12px;color:var(--gold);">—</td>
+              <td id="foot-wastage" style="padding:10px 12px;color:var(--gold);">—</td>
+              <td id="foot-making"  style="padding:10px 12px;color:var(--gold);">—</td>
+              <td id="foot-hm"      style="padding:10px 12px;color:var(--gold);">—</td>
+              <td id="foot-gst"     style="padding:10px 12px;color:var(--gold);">—</td>
+              <td id="foot-total"   style="padding:10px 12px;color:var(--gold-light);font-size:15px;">—</td>
               <td></td>
             </tr>
           </tfoot>
@@ -840,7 +840,17 @@
           </div>
           <div>
             <label>Wastage %</label>
-            <input type="number" id="m-wastage" placeholder="e.g. 5" step="0.1" value="5">
+            <input type="number" id="m-wastage" placeholder="e.g. 14" step="0.1" value="">
+          </div>
+        </div>
+        <div class="form-row-inline">
+          <div>
+            <label>Making %</label>
+            <input type="number" id="m-making" placeholder="e.g. 12" step="0.5" value="">
+          </div>
+          <div>
+            <label>Stone Weight (g)</label>
+            <input type="number" id="m-stone" placeholder="0" step="0.001" value="0">
           </div>
         </div>
         <button class="btn btn-gold btn-block" onclick="addManualItem()">+ Add to Bill</button>
@@ -883,7 +893,8 @@
         <div class="card-title">🧾 Bill Summary</div>
         <div class="result-box" id="bill-summary">
           <div class="result-line"><span class="lbl">Metal Value</span><span class="val" id="sum-metal">₹0</span></div>
-          <div class="result-line"><span class="lbl">VA / Making</span><span class="val" id="sum-va">₹0</span></div>
+          <div class="result-line"><span class="lbl">Wastage</span><span class="val" id="sum-wastage">₹0</span></div>
+          <div class="result-line"><span class="lbl">Making</span><span class="val" id="sum-making">₹0</span></div>
           <div class="result-line"><span class="lbl">Hallmark Charges</span><span class="val" id="sum-is">₹0</span></div>
           <div class="result-line"><span class="lbl">Sub Total</span><span class="val" id="sum-sub">₹0</span></div>
           <div class="result-line"><span class="lbl">GST (<span id="sum-gst-pct">3</span>%)</span><span class="val" id="sum-gst">₹0</span></div>
@@ -1033,79 +1044,155 @@
 <div id="tab-barcode" class="tab-pane">
   <div class="grid-2" style="align-items:start;">
 
-    <div class="card">
-      <div class="card-title">📦 Create New Barcode Tag</div>
+    <!-- LEFT: FORM -->
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div class="card">
+        <div class="card-title">📦 Product Details</div>
 
-      <div class="form-row-inline">
-        <div>
-          <label>Product Name</label>
-          <input type="text" id="bc-name" placeholder="e.g. Gold Bangle 22K">
+        <div class="form-row-inline">
+          <div>
+            <label>Product Name</label>
+            <input type="text" id="bc-name" placeholder="e.g. Gold Bangle 22K">
+          </div>
+          <div>
+            <label>SKU / Code</label>
+            <input type="text" id="bc-sku" placeholder="Auto or manual">
+          </div>
         </div>
-        <div>
-          <label>SKU / Code</label>
-          <input type="text" id="bc-sku" placeholder="Auto or manual" id="bc-sku">
+
+        <div class="form-row-3">
+          <div>
+            <label>Metal Type</label>
+            <select id="bc-metal" onchange="bcUpdateNetWt()">
+              <option value="gold22">Gold 22K (916)</option>
+              <option value="gold24">Gold 24K (999)</option>
+              <option value="gold18">Gold 18K (750)</option>
+              <option value="silver">Silver 925</option>
+            </select>
+          </div>
+          <div>
+            <label>Gross Weight (g)</label>
+            <input type="number" id="bc-weight" placeholder="0.000" step="0.001" oninput="bcUpdateNetWt()">
+          </div>
+          <div>
+            <label>Stone Weight (g)</label>
+            <input type="number" id="bc-stone" placeholder="0.000" value="0" step="0.001" oninput="bcUpdateNetWt()">
+          </div>
+        </div>
+
+        <div class="form-row-3">
+          <div>
+            <label>Net Weight (g)</label>
+            <input type="number" id="bc-net-wt" placeholder="auto" step="0.001" style="background:#111;color:var(--gold);" readonly>
+          </div>
+          <div>
+            <label>Wastage %</label>
+            <input type="number" id="bc-wastage" placeholder="e.g. 14" value="" step="0.1" min="0" oninput="bcUpdateNetWt()">
+          </div>
+          <div>
+            <label>Making %</label>
+            <input type="number" id="bc-making" placeholder="e.g. 12" value="" step="0.5" min="0">
+          </div>
+        </div>
+
+        <div class="form-row-3">
+          <div>
+            <label>HUID / Hallmark No.</label>
+            <input type="text" id="bc-huid" placeholder="Optional">
+          </div>
+            <label>MRP (₹)</label>
+            <input type="number" id="bc-mrp" placeholder="Optional" step="1">
+          </div>
+          <div>
+            <label>Category</label>
+            <input type="text" id="bc-category" placeholder="Ring, Chain...">
+          </div>
+          <div>
+            <label>Description</label>
+            <input type="text" id="bc-desc" placeholder="Optional">
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:6px;">
+          <button class="btn btn-gold" style="flex:2;" onclick="generateBarcode()">🔖 Generate Tag</button>
+          <button class="btn btn-outline" onclick="autoSKU()">⟳ Auto SKU</button>
         </div>
       </div>
 
-      <div class="form-row-3">
-        <div>
-          <label>Metal Type</label>
-          <select id="bc-metal">
-            <option value="gold22">Gold 22K</option>
-            <option value="gold24">Gold 24K</option>
-            <option value="gold18">Gold 18K</option>
-            <option value="silver">Silver</option>
-          </select>
-        </div>
-        <div>
-          <label>Gross Weight (g)</label>
-          <input type="number" id="bc-weight" placeholder="0.000" step="0.001">
-        </div>
-        <div>
-          <label>Wastage %</label>
-          <input type="number" id="bc-wastage" placeholder="5" value="5" step="0.1">
-        </div>
-      </div>
+      <!-- TAG CUSTOMISE PANEL -->
+      <div class="card">
+        <div class="card-title">🎨 Tag Customise</div>
 
-      <div class="form-row-3">
-        <div>
-          <label>Stone Weight (g)</label>
-          <input type="number" id="bc-stone" placeholder="0" value="0" step="0.001">
+        <div class="form-row-inline" style="margin-bottom:10px;">
+          <div>
+            <label>Tag Size</label>
+            <select id="bc-tag-size" onchange="generateBarcode()">
+              <option value="rattail" selected>89×11mm — Rat-tail (Ring/Chain) ★</option>
+              <option value="small">40×25mm — Small Square</option>
+              <option value="medium">60×30mm — Medium (Standard)</option>
+              <option value="large">80×40mm — Large</option>
+              <option value="card">90×55mm — Card Size</option>
+            </select>
+          </div>
+          <div>
+            <label>Tag Style</label>
+            <select id="bc-tag-style" onchange="generateBarcode()">
+              <option value="classic">Classic White</option>
+              <option value="gold">Gold Border</option>
+              <option value="dark">Dark Premium</option>
+              <option value="minimal">Minimal Clean</option>
+            </select>
+          </div>
         </div>
-        <div>
-          <label>Making Rate (%)</label>
-          <input type="number" id="bc-making" placeholder="12" value="12" step="0.5">
-        </div>
-        <div>
-          <label>Category</label>
-          <input type="text" id="bc-category" placeholder="Rings, Chains...">
-        </div>
-      </div>
 
-      <div class="form-row">
-        <label>Description / Notes</label>
-        <input type="text" id="bc-desc" placeholder="Optional description">
-      </div>
+        <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Show on Tag</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+          <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;"><input type="checkbox" id="tg-shopname" checked onchange="generateBarcode()"> Shop Name</label>
+          <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;"><input type="checkbox" id="tg-itemname" checked onchange="generateBarcode()"> Item Name</label>
+          <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;"><input type="checkbox" id="tg-metal" checked onchange="generateBarcode()"> Metal/Purity</label>
+          <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;"><input type="checkbox" id="tg-grosswt" checked onchange="generateBarcode()"> Gross Wt</label>
+          <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;"><input type="checkbox" id="tg-netwt" checked onchange="generateBarcode()"> Net Wt</label>
+          <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;"><input type="checkbox" id="tg-wastage" checked onchange="generateBarcode()"> Wastage %</label>
+          <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;"><input type="checkbox" id="tg-stonewt" onchange="generateBarcode()"> Stone Wt</label>
+          <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;"><input type="checkbox" id="tg-making" checked onchange="generateBarcode()"> Making %</label>
+          <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;"><input type="checkbox" id="tg-huid" onchange="generateBarcode()"> HUID</label>
+          <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;"><input type="checkbox" id="tg-mrp" onchange="generateBarcode()"> MRP</label>
+          <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;"><input type="checkbox" id="tg-sku" checked onchange="generateBarcode()"> SKU Code</label>
+          <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;"><input type="checkbox" id="tg-category" onchange="generateBarcode()"> Category</label>
+        </div>
 
-      <div style="display:flex;gap:10px;margin-top:4px;">
-        <button class="btn btn-gold" onclick="generateBarcode()">🔖 Generate Barcode Tag</button>
-        <button class="btn btn-outline" onclick="autoSKU()">⟳ Auto SKU</button>
+        <div class="form-row-inline">
+          <div>
+            <label>Copies to Print</label>
+            <input type="number" id="bc-copies" value="1" min="1" max="100" step="1" style="width:80px;">
+          </div>
+          <div>
+            <label>Per Row</label>
+            <select id="bc-perrow" style="width:80px;">
+              <option value="1">1</option>
+              <option value="2" selected>2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+            </select>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="card">
+    <!-- RIGHT: PREVIEW -->
+    <div class="card" style="position:sticky;top:80px;">
       <div class="card-title">🔍 Preview Tag</div>
-      <div id="bc-preview" style="display:flex;align-items:center;justify-content:center;min-height:200px;color:var(--muted);">
+      <div id="bc-preview" style="display:flex;align-items:center;justify-content:center;min-height:180px;color:var(--muted);font-size:13px;flex-direction:column;gap:10px;">
+        <span style="font-size:32px;">🏷️</span>
         Fill form and click Generate
       </div>
-      <div style="display:flex;gap:10px;margin-top:14px;">
-        <button class="btn btn-gold btn-sm" onclick="printBarcode()">🖨️ Print Tag</button>
+      <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
+        <button class="btn btn-gold btn-sm" style="flex:2;" onclick="printBarcode()">🖨️ Print Tag</button>
         <button class="btn btn-outline btn-sm" onclick="saveToLibrary()">💾 Save to Library</button>
       </div>
     </div>
-  </div>
 
-  <!-- LIBRARY -->
+  <!-- LIBRARY — inside tab-barcode -->
   <div class="card" style="margin-top:20px;">
     <div class="card-title">📚 Product Library</div>
 
@@ -1160,7 +1247,7 @@
       <div style="color:var(--muted);font-size:13px;grid-column:1/-1;padding:20px 0;">No products yet. Generate and save barcodes above.</div>
     </div>
   </div>
-</div>
+</div><!-- END tab-barcode -->
 
 <!-- ═══════════════════════════════════════════
      TAB 4 – SETTINGS
@@ -1243,19 +1330,23 @@
         <div class="card-title">📊 Default Tax Rates</div>
         <div class="form-row-3">
           <div>
-            <label>Default VA %</label>
-            <input type="number" id="s-va" value="12" step="0.5">
+            <label>Default Wastage %</label>
+            <input type="number" id="s-wastage" value="" step="0.1" placeholder="e.g. 14">
           </div>
           <div>
-            <label>Default Hallmark (₹)</label>
-            <input type="number" id="s-is" value="0" step="0.1">
+            <label>Default Making %</label>
+            <input type="number" id="s-making" value="" step="0.5" placeholder="e.g. 12">
           </div>
           <div>
             <label>Default GST %</label>
             <input type="number" id="s-gst" value="3" step="0.1">
           </div>
         </div>
-        <div class="form-row-inline">
+        <div class="form-row-3">
+          <div>
+            <label>Default Hallmark (₹)</label>
+            <input type="number" id="s-is" value="0" step="1">
+          </div>
           <div>
             <label>Gold Rate (₹/10g)</label>
             <input type="number" id="s-gold-rate" placeholder="72000">
@@ -1322,6 +1413,44 @@
 
         <div style="border-top:1px solid var(--border);margin-bottom:14px;"></div>
 
+        <!-- Google Drive Backup -->
+        <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">☁️ Google Drive Backup</div>
+
+        <!-- Drive status -->
+        <div id="drive-status-box" style="display:none;background:#001a0a;border:1px solid #2a5a2a;border-radius:8px;padding:10px 12px;margin-bottom:10px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-size:11px;color:#4CAF50;font-weight:600;">✅ Connected to Google Drive</div>
+              <div id="drive-user-email" style="font-size:11px;color:var(--muted);margin-top:2px;"></div>
+            </div>
+            <button onclick="driveSignOut()" style="font-size:10px;padding:3px 8px;border-radius:4px;background:none;border:1px solid #555;color:#aaa;cursor:pointer;">Sign Out</button>
+          </div>
+          <div style="font-size:11px;color:var(--muted);margin-top:6px;">
+            Last sync: <span id="drive-last-sync" style="color:var(--text);">Never</span>
+          </div>
+          <div id="drive-file-info" style="font-size:10px;color:var(--muted);margin-top:2px;"></div>
+        </div>
+
+        <div id="drive-not-connected" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px;">
+          <button class="btn btn-gold btn-sm" onclick="driveSignIn()" style="background:linear-gradient(135deg,#4285f4,#34a853);">
+            <span style="display:flex;align-items:center;justify-content:center;gap:8px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+              Sign in with Google
+            </span>
+          </button>
+          <div style="font-size:11px;color:var(--muted);line-height:1.6;background:var(--surface);border-radius:6px;padding:8px;">
+            ☁️ <strong style="color:var(--text);">Google Drive backup:</strong> Signs into your Google account and saves <code style="background:#222;padding:1px 4px;border-radius:3px;">swarna-backup.json</code> directly to your Drive. Safe forever — even if you change phones or clear Chrome data.
+          </div>
+        </div>
+
+        <div id="drive-connected-actions" style="display:none;flex-direction:column;gap:8px;margin-bottom:10px;">
+          <button class="btn btn-gold btn-sm" onclick="driveSaveNow()">☁️ Save to Drive Now</button>
+          <button class="btn btn-outline btn-sm" onclick="driveRestoreBackup()">⬇️ Restore from Drive</button>
+          <button class="btn btn-outline btn-sm" onclick="driveToggleAuto()" id="btn-drive-auto">🔄 Enable Auto-Sync</button>
+        </div>
+
+        <div style="border-top:1px solid var(--border);margin-bottom:14px;"></div>
+
         <!-- Manual backup -->
         <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">🔄 Manual Backup</div>
         <div style="display:flex;flex-direction:column;gap:8px;">
@@ -1342,6 +1471,9 @@
 
 <!-- PRINT AREA -->
 <div id="print-area"></div>
+
+<!-- Google Identity Services -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 
 <!-- CONFIRM MODAL -->
 <div id="modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:2000;align-items:center;justify-content:center;padding:20px;">
@@ -1373,7 +1505,7 @@ let state = {
     addr1: '', addr2: '', phone: '', gstin: '', email: '',
     tagline: 'Thank you for shopping with us!',
     goldRate: 72000, silverRate: 92000,
-    va: 12, is: 0, gst: 3,
+    va: 0, wastage: 0, making: 0, is: 0, gst: 3,
     paper: '80mm', bctype: 'code128'
   }
 };
@@ -1590,6 +1722,10 @@ function clearRateHistory() {
   updateClock();
   renderDashboard();
   updateStorageStatusUI();
+  // Init Google Drive (after GIS library loads)
+  window.addEventListener('load', function() {
+    setTimeout(driveInit, 1000);
+  });
 })();
 
 // ═══════════════════════════════════════════
@@ -1804,15 +1940,17 @@ function updateClock() {
 // RATES
 // ═══════════════════════════════════════════
 function syncRates() {
-  state.settings.goldRate = parseFloat(v('b-gold-rate')) || state.settings.goldRate;
-  state.settings.silverRate = parseFloat(v('b-silver-rate')) || state.settings.silverRate;
+  const g = vn('b-gold-rate', 0);
+  const s = vn('b-silver-rate', 0);
+  if (g > 0) state.settings.goldRate = g;
+  if (s > 0) state.settings.silverRate = s;
   updateHeaderRates();
   recalcBill();
 }
 
 function updateHeaderRates() {
-  const g = parseFloat(v('b-gold-rate')) || state.settings.goldRate;
-  const s = parseFloat(v('b-silver-rate')) || state.settings.silverRate;
+  const g = vn('b-gold-rate', state.settings.goldRate);
+  const s = vn('b-silver-rate', state.settings.silverRate);
   document.getElementById('hdr-rate-gold').textContent = '₹' + fmt(g);
   document.getElementById('hdr-rate-silver').textContent = '₹' + fmt(s);
 }
@@ -1917,13 +2055,29 @@ function scanBarcode() {
 }
 
 function addItemToBill(product) {
-  const goldRate   = parseFloat(v('b-gold-rate'))   || state.settings.goldRate;
-  const silverRate = parseFloat(v('b-silver-rate'))  || state.settings.silverRate;
-  const va  = parseFloat(v('b-va'))  || state.settings.va;
-  const is_ = parseFloat(v('b-is'))  || state.settings.is;
-  const gst = parseFloat(v('b-gst')) || state.settings.gst;
-  const calc = computeItemPrice(product, goldRate, silverRate, va, is_, gst);
-  state.bills[activeBillIndex].items.push({ ...product, ...calc });
+  const goldRate   = vn('b-gold-rate',   state.settings.goldRate);
+  const silverRate = vn('b-silver-rate', state.settings.silverRate);
+  const is_  = vn('b-is',  state.settings.is);
+  const gst  = vn('b-gst', state.settings.gst);
+
+  // Billing bar wastage & making (global defaults)
+  const billWastage = vn('b-wastage', state.settings.wastage || 0);
+  const billMaking  = vn('b-making',  state.settings.making  || 0);
+
+  // Product's own wastage (from barcode tag) — always use if set
+  const wastage = (product.wastage !== undefined && product.wastage !== null && product.wastage !== '')
+    ? Number(product.wastage) : billWastage;
+
+  // Product's own making (from barcode tag) — use if set, else billing bar
+  const making = (product.making !== undefined && product.making !== null && product.making !== '')
+    ? Number(product.making) : billMaking;
+
+  const calc = computeItemPrice(product, goldRate, silverRate, wastage, making, is_, gst);
+  state.bills[activeBillIndex].items.push({
+    ...product, ...calc,
+    usedWastage: wastage,
+    usedMaking:  making
+  });
   renderBillTable();
   recalcBill();
   renderBillTabs();
@@ -1933,54 +2087,60 @@ function addManualItem() {
   const name    = v('m-name');
   const metal   = v('m-metal');
   const weight  = parseFloat(v('m-weight'));
-  const wastage = parseFloat(v('m-wastage')) || 0;
+  const wastage = vn('m-wastage', vn('b-wastage', state.settings.wastage || 0));
+  const making  = vn('m-making',  vn('b-making',  state.settings.making  || 0));
+  const stone   = vn('m-stone', 0);
   if (!name || !weight) { toast('Enter product name & weight'); return; }
-  const product = { name, metal, weight, wastage, stone:0, making: parseFloat(v('b-va'))||12, sku:'MNL-'+Date.now() };
+  const product = { name, metal, weight, wastage, making, stone, sku:'MNL-'+Date.now() };
   addItemToBill(product);
   document.getElementById('m-name').value   = '';
   document.getElementById('m-weight').value = '';
   toast('✅ ' + name + ' added');
 }
 
-function computeItemPrice(product, goldRate, silverRate, vaPct, isPct, gstPct) {
+function computeItemPrice(product, goldRate, silverRate, wastagePct, makingPct, isPct, gstPct) {
   const g           = product.weight || 0;
   const stone       = product.stone  || 0;
-  const grossWeight = g - stone;                          // weight without stone
-  const wastageWt   = grossWeight * (product.wastage / 100);
-  const netWt       = grossWeight + wastageWt;             // billable weight
+  const grossWeight = g - stone;
 
   // ── STEP 1: Inclusive-GST rate per gram for this karat ──
   const purityMap   = { gold24:1, gold22:0.92, gold18:0.78, silver:1 };
   const purity      = purityMap[product.metal] || 0.92;
-  // goldRate is entered as ₹ per 10g for 24K (inclusive of GST)
   const inclGSTRate = product.metal === 'silver'
-    ? (silverRate / 1000) * purity          // silver: per gram incl GST
-    : (goldRate / 10) * purity;             // gold:   per gram incl GST
+    ? (silverRate / 1000) * purity
+    : (goldRate / 10) * purity;
 
-  // ── STEP 2: Excl-GST rate per gram (what is displayed & used in calc) ──
+  // ── STEP 2: Excl-GST rate per gram ──
   const exclGSTRate = inclGSTRate / (1 + gstPct / 100);
-  const ratePerGram = exclGSTRate;          // this is stored & shown in the table
+  const ratePerGram = exclGSTRate;
 
-  // ── STEP 3: Metal value = net weight × excl-GST rate ──
-  const metalVal = Math.round(netWt * exclGSTRate);
+  // ── STEP 3: Metal value = gross weight × excl-GST rate ──
+  const metalVal = Math.round(grossWeight * exclGSTRate);
 
-  // ── STEP 4: VA = gross weight × VA% × excl-GST rate ──
-  // (VA is on the weight basis, not a % of metalVal)
-  const vaAmt = Math.round(grossWeight * (vaPct / 100) * exclGSTRate);
+  // ── STEP 4: Wastage amount = gross weight × wastage% × rate ──
+  const wastageAmt = Math.round(grossWeight * (wastagePct / 100) * exclGSTRate);
 
-  // ── STEP 5: Hallmark flat charge ──
+  // ── STEP 5: Making amount = gross weight × making% × rate ──
+  const makingAmt = Math.round(grossWeight * (makingPct / 100) * exclGSTRate);
+
+  // ── STEP 6: Hallmark flat charge ──
   const isAmt = Math.round(isPct);
 
-  // ── STEP 6: Sub total (before GST) ──
-  const sub = metalVal + vaAmt + isAmt;
+  // ── STEP 7: Sub total (before GST) ──
+  const sub = metalVal + wastageAmt + makingAmt + isAmt;
 
-  // ── STEP 7: GST on sub total ──
+  // ── STEP 8: GST on sub total ──
   const gstAmt = Math.round(sub * (gstPct / 100));
 
-  // ── STEP 8: Grand total ──
+  // ── STEP 9: Grand total ──
   const total = sub + gstAmt;
 
-  return { metalVal, vaAmt, isAmt, sub, gstAmt, total, netWt, wastageWt, ratePerGram, exclGSTRate, inclGSTRate };
+  // netWt for display only
+  const netWt     = grossWeight * (1 + wastagePct / 100);
+  const wastageWt = grossWeight * (wastagePct / 100);
+
+  return { metalVal, wastageAmt, makingAmt, isAmt, sub, gstAmt, total,
+           netWt, wastageWt, ratePerGram, exclGSTRate, inclGSTRate, grossWeight };
 }
 
 function renderBillTable() {
@@ -1999,14 +2159,15 @@ function renderBillTable() {
       <td style="color:var(--text-dim);font-size:11px;">${i+1}</td>
       <td>
         <div style="font-weight:500;color:var(--text);font-size:13px;white-space:nowrap;">${item.name}</div>
-        <div style="font-size:10px;color:var(--muted);">${fmtW(item.weight)}g · ${item.wastage}% wastage</div>
+        <div style="font-size:10px;color:var(--muted);">${fmtW(item.weight)}g · W:${item.usedWastage||0}% · M:${item.usedMaking||0}%</div>
       </td>
       <td><span class="badge ${item.metal==='silver'?'badge-silver':'badge-gold'}">${metalLabel(item.metal)}</span></td>
       <td style="font-family:'DM Mono',monospace;font-size:12px;">${fmtW(item.weight)}</td>
       <td style="font-family:'DM Mono',monospace;font-size:12px;">${fmtW(item.netWt)}</td>
       <td style="font-family:'DM Mono',monospace;font-size:12px;">₹${Math.round(item.ratePerGram).toLocaleString('en-IN')}</td>
       <td style="font-family:'DM Mono',monospace;font-size:12px;">₹${fmt(item.metalVal)}</td>
-      <td style="font-family:'DM Mono',monospace;font-size:12px;">₹${fmt(item.vaAmt)}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px;">₹${fmt(item.wastageAmt)}<span style="font-size:9px;color:var(--muted);"> (${item.usedWastage||0}%)</span></td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px;">₹${fmt(item.makingAmt)}<span style="font-size:9px;color:var(--muted);"> (${item.usedMaking||0}%)</span></td>
       <td style="font-family:'DM Mono',monospace;font-size:12px;">₹${fmt(item.isAmt)}</td>
       <td style="font-family:'DM Mono',monospace;font-size:12px;">₹${fmt(item.gstAmt)}</td>
       <td style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:var(--gold-light);">₹${fmt(item.total)}</td>
@@ -2015,11 +2176,12 @@ function renderBillTable() {
 
   if (tfoot) {
     tfoot.style.display = '';
-    setText('foot-metal', '₹'+fmt(items.reduce((a,x)=>a+x.metalVal,0)));
-    setText('foot-va',    '₹'+fmt(items.reduce((a,x)=>a+x.vaAmt,0)));
-    setText('foot-hm',    '₹'+fmt(items.reduce((a,x)=>a+x.isAmt,0)));
-    setText('foot-gst',   '₹'+fmt(items.reduce((a,x)=>a+x.gstAmt,0)));
-    setText('foot-total', '₹'+fmt(items.reduce((a,x)=>a+x.total,0)));
+    setText('foot-metal',   '₹'+fmt(items.reduce((a,x)=>a+x.metalVal,0)));
+    setText('foot-wastage', '₹'+fmt(items.reduce((a,x)=>a+(x.wastageAmt||0),0)));
+    setText('foot-making',  '₹'+fmt(items.reduce((a,x)=>a+(x.makingAmt||0),0)));
+    setText('foot-hm',      '₹'+fmt(items.reduce((a,x)=>a+x.isAmt,0)));
+    setText('foot-gst',     '₹'+fmt(items.reduce((a,x)=>a+x.gstAmt,0)));
+    setText('foot-total',   '₹'+fmt(items.reduce((a,x)=>a+x.total,0)));
   }
 }
 
@@ -2029,25 +2191,33 @@ function removeItem(i) {
 }
 
 function recalcBill() {
-  const gst        = parseFloat(v('b-gst'))        || state.settings.gst;
-  const va         = parseFloat(v('b-va'))         || state.settings.va;
-  const is_        = parseFloat(v('b-is'))         || state.settings.is;
-  const goldRate   = parseFloat(v('b-gold-rate'))  || state.settings.goldRate;
-  const silverRate = parseFloat(v('b-silver-rate'))|| state.settings.silverRate;
+  const gst        = vn('b-gst',         state.settings.gst);
+  const billWastage= vn('b-wastage',      state.settings.wastage || 0);
+  const billMaking = vn('b-making',       state.settings.making  || 0);
+  const is_        = vn('b-is',          state.settings.is);
+  const goldRate   = vn('b-gold-rate',   state.settings.goldRate);
+  const silverRate = vn('b-silver-rate', state.settings.silverRate);
   if (!state.bills[activeBillIndex]) return;
   state.bills[activeBillIndex].items = state.bills[activeBillIndex].items.map(item => {
-    return { ...item, ...computeItemPrice(item, goldRate, silverRate, va, is_, gst) };
+    const itemWastage = (item.usedWastage !== undefined && item.usedWastage !== null && item.usedWastage !== '')
+      ? Number(item.usedWastage) : billWastage;
+    const itemMaking  = (item.usedMaking !== undefined && item.usedMaking !== null && item.usedMaking !== '')
+      ? Number(item.usedMaking) : billMaking;
+    return { ...item, ...computeItemPrice(item, goldRate, silverRate, itemWastage, itemMaking, is_, gst),
+             usedWastage: itemWastage, usedMaking: itemMaking };
   });
   renderBillTable();
   const items  = getCurrentBillItems();
-  const tMetal = items.reduce((a,x)=>a+x.metalVal,0);
-  const tVA    = items.reduce((a,x)=>a+x.vaAmt,0);
-  const tIS    = items.reduce((a,x)=>a+x.isAmt,0);
-  const tSub   = items.reduce((a,x)=>a+x.sub,0);
-  const tGST   = items.reduce((a,x)=>a+x.gstAmt,0);
-  const tTotal = items.reduce((a,x)=>a+x.total,0);
+  const tMetal   = items.reduce((a,x)=>a+x.metalVal,0);
+  const tWastage = items.reduce((a,x)=>a+(x.wastageAmt||0),0);
+  const tMaking  = items.reduce((a,x)=>a+(x.makingAmt||0),0);
+  const tIS      = items.reduce((a,x)=>a+x.isAmt,0);
+  const tSub     = items.reduce((a,x)=>a+x.sub,0);
+  const tGST     = items.reduce((a,x)=>a+x.gstAmt,0);
+  const tTotal   = items.reduce((a,x)=>a+x.total,0);
   setText('sum-metal',   '₹'+fmt(tMetal));
-  setText('sum-va',      '₹'+fmt(tVA));
+  setText('sum-wastage', '₹'+fmt(tWastage));
+  setText('sum-making',  '₹'+fmt(tMaking));
   setText('sum-is',      '₹'+fmt(tIS));
   setText('sum-sub',     '₹'+fmt(tSub));
   setText('sum-gst',     '₹'+fmt(tGST));
@@ -2105,49 +2275,46 @@ function toggleMetal(type) {
 }
 
 function calcRate() {
-  const va    = parseFloat(v('c-va'))    || 0;
-  const is_   = parseFloat(v('c-is'))   || 0;
-  const gst   = parseFloat(v('c-gst'))  || 3;
-  const extra = parseFloat(v('c-extra')) || 0;
+  const va    = vn('c-va',  0);
+  const is_   = vn('c-is',  0);
+  const gst   = vn('c-gst', state.settings.gst);
+  const extra = vn('c-extra', 0);
 
   let gross, wastage, inclGSTRate, exclGSTRate, metalVal, netWt, wastageWt, grossWeight;
 
   if (currentMetal === 'gold') {
-    const goldRate = parseFloat(v('c-gold-rate')) || 0; // per 10g for 24K incl. GST
-    const purity   = parseFloat(v('c-purity'))   || 0.92;
-    gross       = parseFloat(v('c-gross'))   || 0;
-    const stone = parseFloat(v('c-stone'))   || 0;
-    wastage     = parseFloat(v('c-wastage')) || 0;
+    const goldRate = vn('c-gold-rate', state.settings.goldRate);
+    const purity   = vn('c-purity', 0.92);
+    gross       = vn('c-gross', 0);
+    const stone = vn('c-stone', 0);
+    wastage     = vn('c-wastage', 0);
     grossWeight = gross - stone;
     wastageWt   = grossWeight * (wastage / 100);
-    netWt       = grossWeight + wastageWt;
-    // Step 1: incl. GST rate per gram for this karat
+    netWt       = grossWeight * (1 + wastage / 100);
     inclGSTRate = (goldRate / 10) * purity;
-    // Step 2: excl. GST rate (shown in display, used in calculation)
     exclGSTRate = inclGSTRate / (1 + gst / 100);
-    // Step 3: metal value = net weight × excl. GST rate
-    metalVal    = netWt * exclGSTRate;
+    metalVal    = grossWeight * exclGSTRate;           // metal value on gross weight only
     setText('r-hsn', '7113');
   } else {
-    const silverRate = parseFloat(v('c-silver-rate'))   || 0;
-    const purity     = parseFloat(v('c-silver-purity')) || 0.925;
-    gross       = parseFloat(v('c-silver-gross'))   || 0;
-    wastage     = parseFloat(v('c-silver-wastage')) || 0;
+    const silverRate = vn('c-silver-rate', state.settings.silverRate);
+    const purity     = vn('c-silver-purity', 0.925);
+    gross       = vn('c-silver-gross', 0);
+    wastage     = vn('c-silver-wastage', 0);
     grossWeight = gross;
     wastageWt   = gross * (wastage / 100);
-    netWt       = gross + wastageWt;
+    netWt       = gross * (1 + wastage / 100);
     inclGSTRate = (silverRate / 1000) * purity;
     exclGSTRate = inclGSTRate / (1 + gst / 100);
-    metalVal    = netWt * exclGSTRate;
+    metalVal    = grossWeight * exclGSTRate;           // metal value on gross weight only
     setText('r-hsn', '7114');
   }
 
   const metalValR = Math.round(metalVal);
-  // VA = gross weight × VA% × excl-GST rate (NOT % of metalVal)
-  const vaAmt  = Math.round(grossWeight * (va / 100) * exclGSTRate);
+  // VA/Making = gross weight × VA% × excl-GST rate
+  const calcVaAmt = Math.round(grossWeight * (va / 100) * exclGSTRate);
   const isAmt  = Math.round(is_);
   const extraR = Math.round(extra);
-  const sub    = metalValR + vaAmt + isAmt + extraR;
+  const sub    = metalValR + calcVaAmt + isAmt + extraR;
   const gstAmt = Math.round(sub * (gst / 100));
   const total  = sub + gstAmt;
   const halfGST = gst / 2;
@@ -2157,7 +2324,7 @@ function calcRate() {
   setText('r-net-wt',     fmtW(netWt) + ' g');
   setText('r-per-gram',   '₹' + Math.round(exclGSTRate).toLocaleString('en-IN') + ' (excl. GST)');
   setText('r-metal',      '₹' + fmt(metalValR));
-  setText('r-va',         '₹' + fmt(vaAmt));
+  setText('r-va',         '₹' + fmt(calcVaAmt));
   setText('r-is',         '₹' + fmt(isAmt));
   setText('r-extra',      '₹' + fmt(extraR));
   setText('r-sub',        '₹' + fmt(sub));
@@ -2180,7 +2347,7 @@ function addCalcToBill() {
   const metal = currentMetal === 'gold' ?
     (['gold24','gold22','gold18'][document.getElementById('c-purity').selectedIndex] || 'gold22') : 'silver';
 
-  const product = { name, metal, weight: gross, wastage, stone: parseFloat(v('c-stone')) || 0, making: parseFloat(v('c-va')) || 12, sku: 'CALC-' + Date.now() };
+  const product = { name, metal, weight: gross, wastage, stone: vn('c-stone', 0), making: vn('c-va', 0), sku: 'CALC-' + Date.now() };
 
   switchTabDirect('billing');
   if (!v('b-gold-rate')) document.getElementById('b-gold-rate').value = v('c-gold-rate');
@@ -2198,227 +2365,611 @@ function switchTabDirect(name) {
 }
 
 // ═══════════════════════════════════════════
-// BARCODE GENERATION
+// JEWELLERY TAG SYSTEM
 // ═══════════════════════════════════════════
+
+// ── Constants ──
+var TAG_SIZES = {
+  rattail: { w:336, h:42, mmW:'89mm', mmH:'11mm' },
+  small:   { w:151, h:94  },
+  medium:  { w:227, h:113 },
+  large:   { w:302, h:151 },
+  card:    { w:340, h:208 }
+};
+var TAG_STYLES = {
+  classic: { bg:'#ffffff', border:'1px solid #ccc',    text:'#111',    sub:'#555',    accent:'#333',    font:'Arial,sans-serif' },
+  gold:    { bg:'#fffdf5', border:'2px solid #C9A84C', text:'#2a1a00', sub:'#7a5a10', accent:'#8B6914', font:'Georgia,serif' },
+  dark:    { bg:'#1a1a1a', border:'1px solid #C9A84C', text:'#F0E6C8', sub:'#aaa',   accent:'#C9A84C', font:'Georgia,serif' },
+  minimal: { bg:'#ffffff', border:'1px solid #e0e0e0', text:'#222',    sub:'#888',   accent:'#333',    font:'Helvetica,sans-serif' }
+};
+var FINENESS   = { gold22:'916', gold24:'999', gold18:'750', silver:'925' };
+var METAL_FULL = { gold22:'Gold 22K', gold24:'Gold 24K', gold18:'Gold 18K', silver:'Silver 925' };
+
+// ── Helper: normalise product → always has grossWt, netWt, stoneWt ──
+function normaliseProduct(p) {
+  var grossWt = p.grossWt !== undefined ? p.grossWt : (p.weight || 0);
+  var stoneWt = p.stoneWt !== undefined ? p.stoneWt : (p.stone  || 0);
+  var wastage = p.wastage || 0;
+  var metalWt = Math.max(0, grossWt - stoneWt);
+  var netWt   = p.netWt  !== undefined ? p.netWt  : metalWt * (1 + wastage / 100);
+  return {
+    name:    p.name     || '',
+    sku:     p.sku      || '',
+    metal:   p.metal    || 'gold22',
+    grossWt: grossWt,
+    stoneWt: stoneWt,
+    netWt:   netWt,
+    wastage: wastage,
+    making:  p.making   !== undefined ? p.making  : 0,
+    huid:    p.huid     || '',
+    mrp:     p.mrp      || '',
+    category:p.category || '',
+    desc:    p.desc     || ''
+  };
+}
+
+function bcUpdateNetWt() {
+  var gross   = parseFloat(v('bc-weight'))  || 0;
+  var stone   = parseFloat(v('bc-stone'))   || 0;
+  var wastage = parseFloat(v('bc-wastage')) || 0;
+  var metalWt = Math.max(0, gross - stone);
+  var netWt   = metalWt * (1 + wastage / 100);
+  var el = document.getElementById('bc-net-wt');
+  if (el) el.value = netWt > 0 ? netWt.toFixed(3) : '';
+}
+
 function autoSKU() {
-  const metal = v('bc-metal');
-  const prefix = { gold22:'G22', gold24:'G24', gold18:'G18', silver:'SLV' }[metal] || 'PRD';
+  var metal  = v('bc-metal');
+  var prefix = { gold22:'G22', gold24:'G24', gold18:'G18', silver:'SLV' }[metal] || 'PRD';
   document.getElementById('bc-sku').value = prefix + '-' + Date.now().toString().slice(-6);
 }
 
-function generateBarcode() {
-  const name = v('bc-name');
-  const sku = v('bc-sku') || (autoSKU(), v('bc-sku'));
-  const metal = v('bc-metal');
-  const weight = parseFloat(v('bc-weight')) || 0;
-  const wastage = parseFloat(v('bc-wastage')) || 0;
-  const stone = parseFloat(v('bc-stone')) || 0;
-  const making = parseFloat(v('bc-making')) || 12;
-  const category = v('bc-category');
-  const desc = v('bc-desc');
-
-  if (!name || !weight) { toast('Enter name & weight'); return; }
-
-  const svgStr = generateBarcodeSVG(sku);
-
-  const html = `
-    <div class="barcode-card" id="preview-tag">
-      <div class="bc-name">${name}</div>
-      <div class="bc-meta">${metalLabel(metal)} | Wt: ${fmtW(weight)}g | Wastage: ${wastage}%${stone > 0 ? ' | Stone: ' + fmtW(stone) + 'g' : ''}${category ? ' | ' + category : ''}</div>
-      ${svgStr}
-      <div class="barcode-num">${sku}</div>
-      <div class="bc-price">Making: ${making}%</div>
-      ${desc ? `<div style="font-size:10px;color:#888;margin-top:4px;">${desc}</div>` : ''}
-    </div>`;
-
-  document.getElementById('bc-preview').innerHTML = html;
-  window._lastBcProduct = { name, sku, metal, weight, wastage, stone, making, category, desc };
+function getBcCheckbox(id) {
+  var el = document.getElementById(id);
+  return el ? el.checked : true;
 }
 
-function generateBarcodeSVG(code) {
-  // Simple Code 128 approximation (visual only)
-  const bars = strToCode128Bars(code);
-  const barW = 1.5;
-  const height = 50;
-  const totalW = bars.length * barW;
-  let svgBars = '';
-  let x = 0;
-  bars.forEach((bar, i) => {
-    if (i % 2 === 0) { // black bar
-      svgBars += `<rect x="${x}" y="0" width="${barW}" height="${height}" fill="#000"/>`;
+function generateBarcode() {
+  var name    = v('bc-name');
+  var sku     = v('bc-sku') || (autoSKU(), v('bc-sku'));
+  var metal   = v('bc-metal');
+  var grossWt = parseFloat(v('bc-weight'))  || 0;
+  var stoneWt = parseFloat(v('bc-stone'))   || 0;
+  var wastage = parseFloat(v('bc-wastage')) || 0;
+  var metalWt = Math.max(0, grossWt - stoneWt);
+  var netWt   = metalWt * (1 + wastage / 100);
+
+  var elNW = document.getElementById('bc-net-wt');
+  if (elNW) elNW.value = netWt > 0 ? netWt.toFixed(3) : '';
+
+  var makingRaw = v('bc-making');
+  var making    = makingRaw === '' ? 0 : (parseFloat(makingRaw) || 0);
+  var huid      = v('bc-huid');
+  var mrp       = v('bc-mrp');
+  var category  = v('bc-category');
+  var desc      = v('bc-desc');
+
+  if (!name) { toast('Enter item name'); return; }
+  if (!grossWt) { toast('Enter gross weight'); return; }
+
+  // Product object with ALL fields — both camelCase (for buildTagHTML) and original (for billing)
+  var product = {
+    name:name, sku:sku, metal:metal,
+    grossWt:grossWt, netWt:netWt, stoneWt:stoneWt,
+    weight:grossWt, stone:stoneWt,   // billing keys
+    wastage:wastage, making:making,
+    huid:huid, mrp:mrp, category:category, desc:desc
+  };
+
+  var size  = v('bc-tag-size')  || 'medium';
+  var style = v('bc-tag-style') || 'classic';
+
+  try {
+    var tagHtml = buildTagHTML(product, size, style, false);
+    document.getElementById('bc-preview').innerHTML = tagHtml;
+    window._lastBcProduct = product;
+  } catch(err) {
+    toast('Error generating tag: ' + err.message);
+    console.error('buildTagHTML error:', err);
+  }
+}
+
+function buildTagHTML(rawProduct, size, style, forPrint) {
+  var p  = normaliseProduct(rawProduct);
+  var sz = TAG_SIZES[size]  || TAG_SIZES.medium;
+  var st = TAG_STYLES[style] || TAG_STYLES.classic;
+  var shop     = (state && state.settings && state.settings.shopName) ? state.settings.shopName : 'Swarna Jewellers';
+  var fineness = FINENESS[p.metal] || '';
+
+  function chk(id) { return forPrint ? true : getBcCheckbox(id); }
+
+  var show = {
+    shopname: chk('tg-shopname'),
+    itemname: chk('tg-itemname'),
+    metal:    chk('tg-metal'),
+    grosswt:  chk('tg-grosswt'),
+    netwt:    chk('tg-netwt'),
+    wastage:  chk('tg-wastage') && (p.wastage > 0),
+    stonewt:  chk('tg-stonewt') && (p.stoneWt > 0),
+    making:   chk('tg-making'),
+    huid:     chk('tg-huid')     && !!p.huid,
+    mrp:      chk('tg-mrp')      && !!p.mrp,
+    sku:      chk('tg-sku'),
+    category: chk('tg-category') && !!p.category
+  };
+
+  var svg88  = generateBarcodeSVG(p.sku, 88, 28);
+
+  // ─────────────────────────────────────────────────────────
+  // RAT-TAIL TAG  89mm × 11mm
+  //
+  //  ┌───────────── 55mm ──────────────┐✂┌─── 34mm ───┐
+  //  │ Shop Name                        │ │  |||||||||  │
+  //  │ Ring              Gold 22K / 916 │ │  |||||||||  │
+  //  │ G:5.000g  N:5.700g  W:14%        │ │  |||||||||  │
+  //  │ G22-684101                        │ │  |||||||||  │
+  //  └──────────────────────────────────┘ └────────────┘
+  //  ← info sticker sticks here →    tail threads through ring
+  // ─────────────────────────────────────────────────────────
+  if (size === 'rattail') {
+    var preW = sz.w; var preH = sz.h;
+    // ── 50:50 split ──
+    var preHalf   = Math.round(preW * 0.50);   // each half = 50% screen
+    var preBcH    = preH - 10;
+    // Print: 50:50 of 89mm → each side ~43mm
+    // Barcode height: 11mm total - 1.5mm top/bottom padding - 2mm SKU = ~7.5mm → ~28px at 96dpi
+    var prtHalf   = '43mm';
+    var prtBcH    = 22;  // keeps barcode+SKU within 11mm height
+
+    var svgRt = generateBarcodeSVG(p.sku, forPrint ? 118 : preHalf - 6, forPrint ? prtBcH : preBcH);
+
+    // Font sizes
+    var fzShop   = forPrint ? '2pt'   : '7px';
+    var fzName   = forPrint ? '2.6pt' : '8px';
+    var fzField  = forPrint ? '1.8pt' : '6px';
+    var fzSKU    = forPrint ? '1.7pt' : '5.5px';
+    var fieldGap = forPrint ? '1.2mm' : '3px';
+
+    // Field line: G.Wt | N.Wt | Wastage | Making | MRP
+    var fields = '';
+    if (show.metal)              fields += '<span>'+fineness+'</span>';
+    if (show.grosswt)            fields += '<span>G:'+p.grossWt.toFixed(3)+'g</span>';
+    if (show.netwt)              fields += '<span>N:'+p.netWt.toFixed(3)+'g</span>';
+    if (show.wastage&&p.wastage) fields += '<span>W:'+p.wastage+'%</span>';
+    if (show.making&&p.making)   fields += '<span>Mk:'+p.making+'%</span>';
+    if (show.mrp&&p.mrp)         fields += '<span style="font-weight:700;">\u20b9'+p.mrp+'</span>';
+
+    // ── OUTER WRAPPER ──
+    var outerStyle = forPrint
+      ? 'width:89mm;height:11mm;display:flex;align-items:stretch;overflow:hidden;box-sizing:border-box;background:'+st.bg+';border:0.3mm solid #999;font-family:'+st.font+';'
+      : 'width:'+preW+'px;height:'+preH+'px;display:flex;align-items:stretch;overflow:hidden;box-sizing:border-box;background:'+st.bg+';border:'+st.border+';border-radius:5px;font-family:'+st.font+';';
+
+    // ── LEFT TEXT SECTION (50%) ──
+    var textPad   = forPrint ? '0.7mm 0.8mm 0.5mm 1.2mm' : '3px 3px 3px 5px';
+    var textStyle = 'flex-shrink:0;width:'+(forPrint?prtHalf:preHalf+'px')+';'
+      +'padding:'+textPad+';display:flex;flex-direction:column;justify-content:center;'
+      +'gap:'+(forPrint?'0.15mm':'1px')+';overflow:hidden;';
+
+    // ── FOLD / SCISSOR LINE ──
+    var foldStyle = forPrint
+      ? 'width:0;border-left:0.3mm dashed #aaa;align-self:stretch;flex-shrink:0;'
+      : 'width:12px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;opacity:0.45;';
+    var foldContent = forPrint ? ''
+      : '<span style="font-size:8px;line-height:1;">✂</span>'
+       +'<div style="width:1px;flex:1;border-left:1.5px dashed #888;"></div>';
+
+    // ── RIGHT BARCODE SECTION (50%) — SKU under barcode ──
+    var bcStyle = 'flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;'
+      +'padding:'+(forPrint?'0.4mm 0.5mm':'2px')+';'
+      +'overflow:hidden;';
+
+    // Build
+    var html_rt = '<div style="'+outerStyle+'">';
+
+    // Left: text
+    html_rt += '<div style="'+textStyle+'">';
+    if (show.shopname) html_rt += '<div style="font-size:'+fzShop+';font-weight:700;color:'+st.accent+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.15;">'+shop+'</div>';
+    if (show.itemname) html_rt += '<div style="font-size:'+fzName+';font-weight:700;color:'+st.text+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.15;">'+p.name+'</div>';
+    if (show.metal)    html_rt += '<div style="font-size:'+fzField+';color:'+st.sub+';line-height:1.1;">'+(METAL_FULL[p.metal]||p.metal)+' / '+fineness+'</div>';
+    if (fields)        html_rt += '<div style="font-size:'+fzField+';color:'+st.sub+';display:flex;gap:'+fieldGap+';flex-wrap:nowrap;line-height:1.1;white-space:nowrap;overflow:hidden;">'+fields+'</div>';
+    html_rt += '</div>';
+
+    // Fold line
+    html_rt += '<div style="'+foldStyle+'">'+foldContent+'</div>';
+
+    // Right: barcode + SKU under it
+    html_rt += '<div style="'+bcStyle+'">';
+    html_rt += svgRt;
+    if (show.sku) html_rt += '<div style="font-size:'+fzSKU+';color:'+st.sub+';font-family:Courier New,monospace;line-height:1.2;white-space:nowrap;margin-top:'+(forPrint?'0.2mm':'1px')+';">'+p.sku+'</div>';
+    html_rt += '</div>';
+
+    html_rt += '</div>';
+
+    // Screen preview: fold hint labels
+    if (!forPrint) {
+      html_rt = '<div style="display:inline-block;">'
+        + html_rt
+        + '<div style="display:flex;font-size:9px;color:var(--muted);margin-top:4px;">'
+          + '<div style="width:'+preHalf+'px;text-align:center;">← info sticker (stick)</div>'
+          + '<div style="width:12px;"></div>'
+          + '<div style="flex:1;text-align:center;">thread through ring →</div>'
+        + '</div>'
+        + '</div>';
     }
+    return html_rt;
+  }
+
+  // ── PORTRAIT ──
+  var isCard  = (size === 'card');
+  var nameFz  = isCard ? 13 : (size === 'large' ? 11 : 10);
+  var fieldFz = isCard ? 10 : 9;
+  var shopFz  = isCard ? 10 : 8;
+  var barcodeH= size === 'small' ? 28 : (size === 'medium' ? 34 : 42);
+  var fieldBg = (st.bg === '#ffffff') ? '#f5f5f5' : 'rgba(255,255,255,0.08)';
+  var svgMain = generateBarcodeSVG(p.sku, sz.w - 18, barcodeH);
+
+  var rowItems = [];
+  if (show.grosswt || show.netwt) {
+    var r = '';
+    if (show.grosswt) r += '<span><b>G.Wt</b>&nbsp;'+p.grossWt.toFixed(3)+'g</span>';
+    if (show.netwt)   r += '<span><b>N.Wt</b>&nbsp;'+p.netWt.toFixed(3)+'g</span>';
+    rowItems.push(r);
+  }
+  var r2 = '';
+  if (show.wastage)  r2 += '<span><b>Wastage</b>&nbsp;'+p.wastage+'%</span>';
+  if (show.stonewt)  r2 += '<span><b>St.Wt</b>&nbsp;'+p.stoneWt.toFixed(3)+'g</span>';
+  if (r2) rowItems.push(r2);
+  if (show.making && p.making !== undefined) rowItems.push('<span style="width:100%"><b>Making</b>&nbsp;'+p.making+'%</span>');
+  if (show.huid && p.huid)     rowItems.push('<span style="width:100%"><b>HUID</b>&nbsp;'+p.huid+'</span>');
+  if (show.mrp  && p.mrp)      rowItems.push('<span style="width:100%;font-weight:700;color:'+st.accent+'"><b>MRP</b>&nbsp;\u20b9'+p.mrp+'</span>');
+  if (show.category && p.category) rowItems.push('<span style="width:100%"><b>Cat</b>&nbsp;'+p.category+'</span>');
+
+  var rowsHtml = '';
+  if (rowItems.length) {
+    rowsHtml = '<div style="display:flex;flex-direction:column;gap:1px;margin-bottom:3px;">';
+    for (var ri=0;ri<rowItems.length;ri++) {
+      rowsHtml += '<div style="display:flex;justify-content:space-between;font-size:'+fieldFz+'px;color:'+st.text+';background:'+fieldBg+';padding:1px 4px;border-radius:2px;">'+rowItems[ri]+'</div>';
+    }
+    rowsHtml += '</div>';
+  }
+
+  return '<div style="width:'+sz.w+'px;min-height:'+sz.h+'px;background:'+st.bg+';border:'+st.border+';font-family:'+st.font+';padding:6px 7px;box-sizing:border-box;border-radius:5px;text-align:center;">'+
+    (show.shopname?'<div style="font-size:'+shopFz+'px;font-weight:700;color:'+st.accent+';letter-spacing:.5px;border-bottom:1px solid '+st.accent+'44;padding-bottom:2px;margin-bottom:3px;">'+shop+'</div>':'')+
+    (show.itemname?'<div style="font-size:'+nameFz+'px;font-weight:700;color:'+st.text+';margin-bottom:2px;">'+p.name+'</div>':'')+
+    (show.metal?'<div style="font-size:'+fieldFz+'px;color:'+st.sub+';margin-bottom:3px;">'+(METAL_FULL[p.metal]||p.metal)+' | '+fineness+'</div>':'')+
+    rowsHtml+
+    '<div style="margin:3px 0 1px;">'+svgMain+'</div>'+
+    (show.sku?'<div style="font-size:8px;color:'+st.sub+';font-family:Courier New,monospace;letter-spacing:.5px;">'+p.sku+'</div>':'')+
+    '</div>';
+}
+
+function generateBarcodeSVG(code, width, height) {
+  width  = width  || 180;
+  height = height || 44;
+  var bars = strToCode128Bars(code || 'NOCODE');
+  var barW = Math.max(0.8, width / bars.length);
+  var svg  = '', x = 0;
+  for (var i=0;i<bars.length;i++) {
+    if (bars[i] === 1) svg += '<rect x="'+x.toFixed(2)+'" y="0" width="'+barW.toFixed(2)+'" height="'+height+'" fill="#000"/>';
     x += barW;
-  });
-  return `<svg class="barcode-svg" width="${totalW}" height="${height}" viewBox="0 0 ${totalW} ${height}" xmlns="http://www.w3.org/2000/svg">${svgBars}</svg>`;
+  }
+  return '<svg width="'+width+'" height="'+height+'" viewBox="0 0 '+width+' '+height+'" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto;">'+svg+'</svg>';
 }
 
 function strToCode128Bars(str) {
-  // Pseudo barcode: alternating bars based on char codes for visual effect
-  const bars = [1,1,0,1,1,0,0,1,1,0]; // start
-  for (let i = 0; i < str.length; i++) {
-    const c = str.charCodeAt(i);
-    bars.push(1, c % 2, 0, 1, (c >> 1) % 2, 1, (c >> 2) % 2, 0, 1, 1);
+  var bars = [1,1,0,1,1,0,0,1,1,0];
+  for (var i=0;i<str.length;i++) {
+    var c  = str.charCodeAt(i) % 96;
+    var w1 = 1 + (c & 3);
+    var w2 = 1 + ((c >> 2) & 3);
+    var w3 = 1 + ((c >> 4) & 3);
+    for(var j=0;j<w1;j++) bars.push(1);
+    for(var j=0;j<w2;j++) bars.push(0);
+    for(var j=0;j<w3;j++) bars.push(1);
+    bars.push(0);
   }
-  bars.push(1,1,0,0,0,1,0,1,1,1,0,0); // stop
+  bars.push(1,1,0,0,0,1,0,1,1,1,0,0);
   return bars;
 }
 
+// ── SAVE TO LIBRARY ──
 function saveToLibrary() {
-  if (!window._lastBcProduct) { toast('Generate a barcode first'); return; }
-  const exists = state.products.findIndex(p => p.sku === window._lastBcProduct.sku);
-  if (exists > -1) state.products.splice(exists, 1);
-  state.products.unshift({ ...window._lastBcProduct });
+  if (!window._lastBcProduct) { toast('Generate a tag first'); return; }
+  var prod = window._lastBcProduct;
+  var idx = state.products.findIndex(function(x){ return x.sku === prod.sku; });
+  if (idx > -1) state.products.splice(idx, 1);
+  state.products.unshift(Object.assign({}, prod));
   renderLibrary();
   saveState();
-  toast('💾 Saved to library');
+  toast('\u2705 Saved: ' + prod.name);
 }
 
-// ── LIBRARY FILTER STATE ──
-var _libMetalFilter = '';
-
-function setMetalFilter(btn, val) {
-  _libMetalFilter = val;
-  document.querySelectorAll('#lib-metal-chips .lib-chip').forEach(c => c.classList.remove('active'));
-  btn.classList.add('active');
-  filterLibrary();
+// ── PRINT TAG (main entry point) ──
+function printBarcode() {
+  if (!window._lastBcProduct) { toast('Generate a tag first'); return; }
+  _doPrintTags([window._lastBcProduct]);
 }
 
-function clearSearch() {
-  document.getElementById('bc-search').value = '';
-  document.getElementById('bc-search-clear').style.display = 'none';
-  filterLibrary();
+function printLibraryTag(sku) {
+  var p = state.products.find(function(x){ return x.sku === sku; });
+  if (!p) { toast('Product not found'); return; }
+  _doPrintTags([p]);
 }
 
-function filterLibrary() {
-  const query = v('bc-search').toLowerCase().trim();
-  const sort  = v('lib-sort') || 'newest';
-  // show/hide clear button
-  const clrBtn = document.getElementById('bc-search-clear');
-  if (clrBtn) clrBtn.style.display = query ? '' : 'none';
-  renderLibrary(query, _libMetalFilter, sort);
-}
+function _doPrintTags(products) {
+  var size   = v('bc-tag-size')  || 'medium';
+  var style  = v('bc-tag-style') || 'classic';
+  var copies = parseInt(v('bc-copies')) || 1;
+  var perRow = parseInt(v('bc-perrow')) || 2;
 
-function renderLibrary(query = '', metalFilter = '', sort = 'newest') {
-  const grid = document.getElementById('bc-library');
-  const countEl = document.getElementById('lib-count');
-
-  let products = [...state.products];
-
-  // Filter by search query (name, SKU, category, description)
-  if (query) {
-    products = products.filter(p =>
-      (p.name        || '').toLowerCase().includes(query) ||
-      (p.sku         || '').toLowerCase().includes(query) ||
-      (p.category    || '').toLowerCase().includes(query) ||
-      (p.desc        || '').toLowerCase().includes(query)
-    );
+  // Build all copies
+  var allTags = [];
+  for (var pi=0;pi<products.length;pi++) {
+    for (var ci=0;ci<copies;ci++) allTags.push(products[pi]);
   }
 
-  // Filter by metal
-  if (metalFilter) {
-    products = products.filter(p => p.metal === metalFilter);
-  }
+  var isRattail = (size === 'rattail');
 
-  // Sort
-  if (sort === 'name')       products.sort((a,b) => a.name.localeCompare(b.name));
-  else if (sort === 'oldest') products.reverse();
-  else if (sort === 'weight_hi') products.sort((a,b) => (b.weight||0) - (a.weight||0));
-  else if (sort === 'weight_lo') products.sort((a,b) => (a.weight||0) - (b.weight||0));
-  // newest = default order (most recently added first — already stored that way)
+  // For rattail: no wrapper margins, exact page size, single tag per page
+  // For others: standard layout with small margins
+  var tagWrapStyle = isRattail
+    ? 'display:block;margin:0;padding:0;'
+    : 'display:inline-block;margin:2mm;vertical-align:top;page-break-inside:avoid;';
 
-  // Update count
-  if (countEl) {
-    const total = state.products.length;
-    if (products.length === total) {
-      countEl.textContent = total + ' product' + (total !== 1 ? 's' : '');
-    } else {
-      countEl.textContent = products.length + ' of ' + total + ' shown';
+  // Build tag HTML rows
+  var rowsHtml = '', rowBuf = [];
+  for (var ti=0;ti<allTags.length;ti++) {
+    var tagDiv = '';
+    try {
+      tagDiv = buildTagHTML(allTags[ti], size, style, true);
+    } catch(e) {
+      tagDiv = '<div style="padding:8px;border:1px solid red;font-size:10px;">Error: '+e.message+'</div>';
+      console.error('Tag build error for', allTags[ti].name, e);
+    }
+    rowBuf.push('<div style="'+tagWrapStyle+'">' + tagDiv + '</div>');
+    if (rowBuf.length === perRow || ti === allTags.length - 1) {
+      var rowStyle = isRattail
+        ? 'display:block;margin:0;padding:0;page-break-after:always;'
+        : 'display:flex;flex-wrap:wrap;align-items:flex-start;';
+      rowsHtml += '<div style="'+rowStyle+'">' + rowBuf.join('') + '</div>';
+      rowBuf = [];
     }
   }
 
+  var pageSize = isRattail ? '89mm 11mm' : 'auto';
+
+  var printHTML = '<!DOCTYPE html><html><head><meta charset="UTF-8">' +
+    '<title>Jewellery Tags</title>' +
+    '<style>' +
+    '*{box-sizing:border-box;margin:0;padding:0;}' +
+    'body{background:#fff;font-family:Arial,sans-serif;padding:0;margin:0;}' +
+    'svg{display:block;}' +
+    (isRattail
+      // Rattail: exact 89×11mm page, zero margins everywhere
+      ? '@media print{'
+        + '@page{margin:0!important;size:89mm 11mm;}'
+        + 'html,body{width:89mm;height:11mm;overflow:hidden;}'
+        + 'div{page-break-inside:avoid;}'
+        + '}'
+      // Other sizes: auto page with small margins
+      : '@media print{'
+        + '@page{margin:3mm;size:auto;}'
+        + 'div{page-break-inside:avoid;}'
+        + '}') +
+    '</style></head><body>' +
+    rowsHtml +
+    '</body></html>';
+
+  _triggerPrint(printHTML);
+}
+
+// ── UNIVERSAL PRINT TRIGGER ──
+// Works on Android Chrome PWA, Desktop Chrome, Safari
+function _triggerPrint(html) {
+  // Method 1: hidden iframe (most reliable on Android)
+  var old = document.getElementById('__swarna_print_frame');
+  if (old) { try { old.parentNode.removeChild(old); } catch(e){} }
+
+  var iframe = document.createElement('iframe');
+  iframe.setAttribute('id', '__swarna_print_frame');
+  iframe.setAttribute('tabindex', '-1');
+  iframe.setAttribute('aria-hidden', 'true');
+  iframe.setAttribute('title', 'print');
+  iframe.style.cssText = 'position:fixed;width:0;height:0;top:0;left:0;border:none;opacity:0;pointer-events:none;';
+  document.body.appendChild(iframe);
+
+  var printed = false;
+
+  function doPrint() {
+    if (printed) return;
+    printed = true;
+    try {
+      iframe.contentWindow.focus();
+      iframe.contentWindow.print();
+      // clean up
+      setTimeout(function(){
+        try { document.body.removeChild(iframe); } catch(e){}
+      }, 30000);
+    } catch(e) {
+      console.warn('iframe print failed:', e.message);
+      try { document.body.removeChild(iframe); } catch(e2){}
+      // Method 2: blob URL
+      _printViaBlob(html);
+    }
+  }
+
+  // Attach onload BEFORE writing content
+  iframe.onload = function() { setTimeout(doPrint, 50); };
+
+  // Write content into iframe
+  try {
+    var iDoc = iframe.contentDocument || iframe.contentWindow.document;
+    iDoc.open('text/html', 'replace');
+    iDoc.write(html);
+    iDoc.close();
+    // Fallback: if onload never fires within 1.5s, try anyway
+    setTimeout(function(){
+      if (!printed) { console.warn('iframe onload timeout, printing anyway'); doPrint(); }
+    }, 1500);
+  } catch(e) {
+    console.warn('iframe write failed:', e.message);
+    try { document.body.removeChild(iframe); } catch(e2){}
+    _printViaBlob(html);
+  }
+}
+
+function _printViaBlob(html) {
+  try {
+    var blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+    var url  = URL.createObjectURL(blob);
+    var win  = window.open(url, '_blank');
+    if (win) {
+      win.onload = function(){ try{ win.print(); } catch(e){} };
+      setTimeout(function(){ try{ URL.revokeObjectURL(url); } catch(e){} }, 30000);
+    } else {
+      // Method 3: direct download as HTML file user can open
+      var a   = document.createElement('a');
+      a.href  = url;
+      a.download = 'swarna-tags.html';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      toast('\u2B07\uFE0F Tags downloaded — open the file to print');
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 5000);
+    }
+  } catch(e) {
+    toast('\u274C Print failed: ' + e.message);
+    console.error('_printViaBlob failed:', e);
+  }
+}
+
+// ── LIBRARY RENDER ──
+var _libMetalFilter = '';
+
+function renderLibrary(query, metalFilter, sort) {
+  query       = (query       !== undefined) ? query       : (v('bc-search') || '');
+  metalFilter = (metalFilter !== undefined) ? metalFilter : _libMetalFilter;
+  sort        = (sort        !== undefined) ? sort        : (v('lib-sort')  || 'newest');
+
+  var grid    = document.getElementById('bc-library');
+  var countEl = document.getElementById('lib-count');
+  if (!grid) return;
+
+  var products = state.products.slice();
+
+  if (metalFilter) products = products.filter(function(p){ return p.metal === metalFilter; });
+
+  var q = query.toLowerCase().trim();
+  if (q) products = products.filter(function(p){
+    return (p.name||'').toLowerCase().indexOf(q) > -1 ||
+           (p.sku||'').toLowerCase().indexOf(q) > -1  ||
+           (p.category||'').toLowerCase().indexOf(q) > -1 ||
+           (p.desc||'').toLowerCase().indexOf(q) > -1;
+  });
+
+  if (sort === 'newest')    products.sort(function(a,b){ return (b.savedAt||0)-(a.savedAt||0); });
+  else if(sort==='oldest')  products.sort(function(a,b){ return (a.savedAt||0)-(b.savedAt||0); });
+  else if(sort==='name')    products.sort(function(a,b){ return (a.name||'').localeCompare(b.name||''); });
+  else if(sort==='weight_hi') products.sort(function(a,b){ return (b.weight||0)-(a.weight||0); });
+  else if(sort==='weight_lo') products.sort(function(a,b){ return (a.weight||0)-(b.weight||0); });
+
+  var total = products.length;
+  if (countEl) countEl.textContent = total + ' product' + (total!==1?'s':'');
+
   if (products.length === 0) {
-    const msg = (query || metalFilter)
-      ? `No products match your filter. <button onclick="clearSearch();setMetalFilter(document.querySelector('#lib-metal-chips .lib-chip'),'');" style="background:none;border:none;color:var(--gold);cursor:pointer;font-size:12px;text-decoration:underline;">Clear filters</button>`
-      : 'No products yet. Generate and save barcodes above.';
-    grid.innerHTML = `<div style="color:var(--muted);font-size:13px;grid-column:1/-1;padding:20px 0;">${msg}</div>`;
+    grid.innerHTML = '<div style="text-align:center;color:var(--muted);padding:32px;font-size:13px;">' +
+      (state.products.length === 0 ? 'No products yet. Generate and save barcodes above.' :
+       'No products match your filter. <button onclick="clearSearch();setMetalFilter(document.querySelector(\'#lib-metal-chips .lib-chip\'),\'\');" style="background:none;border:none;color:var(--gold);cursor:pointer;font-size:12px;text-decoration:underline;">Clear filters</button>') +
+      '</div>';
     return;
   }
 
-  // Find real index in state.products for each result (so delete works correctly)
-  grid.innerHTML = products.map(p => {
-    const realIdx = state.products.indexOf(p);
-    const metalBadgeColor = p.metal === 'silver' ? '#888' : '#C9A84C';
-    const metalBgColor    = p.metal === 'silver' ? '#1a1a20' : '#1a1400';
-    return `
-    <div class="barcode-card">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
-        <div class="bc-name" style="text-align:left;">${p.name}</div>
-        <span style="font-size:10px;padding:2px 7px;border-radius:10px;background:${metalBgColor};color:${metalBadgeColor};border:1px solid ${metalBadgeColor}44;white-space:nowrap;">${metalLabel(p.metal)}</span>
-      </div>
-      <div class="bc-meta" style="text-align:left;">
-        ${fmtW(p.weight)}g &nbsp;·&nbsp; Wastage: ${p.wastage}%
-        ${p.stone > 0 ? ` &nbsp;·&nbsp; Stone: ${fmtW(p.stone)}g` : ''}
-        ${p.category ? `<br><span style="color:var(--text-dim);">📁 ${p.category}</span>` : ''}
-      </div>
-      ${generateBarcodeSVG(p.sku)}
-      <div class="barcode-num">${p.sku}</div>
-      <div class="bc-price">Making: ${p.making}%</div>
-      ${p.desc ? `<div style="font-size:10px;color:var(--muted);margin-top:3px;font-style:italic;">${p.desc}</div>` : ''}
-      <div style="display:flex;gap:6px;justify-content:center;margin-top:10px;">
-        <button onclick="scanFromLibrary('${p.sku}')"
-          style="flex:1;font-size:11px;padding:6px 8px;border-radius:6px;background:#1a1500;border:1px solid #8B6914;color:#C9A84C;cursor:pointer;font-family:'Outfit',sans-serif;">
-          ➕ Add to Bill
-        </button>
-        <button onclick="deleteProduct(${realIdx})"
-          style="font-size:11px;padding:6px 10px;border-radius:6px;background:#1a1a1a;border:1px solid #333;color:#888;cursor:pointer;">
-          🗑️
-        </button>
-      </div>
-    </div>`;
-  }).join('');
+  var html = '';
+  products.forEach(function(p) {
+    var realIdx = state.products.indexOf(p);
+    var metalBadgeColor = p.metal === 'silver' ? '#aaa' : '#C9A84C';
+    var metalBgColor    = p.metal === 'silver' ? '#1a1a20' : '#1a1400';
+    var svgTag = '';
+    try { svgTag = generateBarcodeSVG(p.sku, 160, 36); } catch(e){ svgTag = ''; }
+    html += '<div class="barcode-card">' +
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">' +
+        '<div class="bc-name" style="text-align:left;">' + (p.name||'') + '</div>' +
+        '<span style="font-size:10px;padding:2px 7px;border-radius:10px;background:'+metalBgColor+';color:'+metalBadgeColor+';border:1px solid '+metalBadgeColor+'44;white-space:nowrap;">' + metalLabel(p.metal) + '</span>' +
+      '</div>' +
+      '<div class="bc-meta" style="text-align:left;">' +
+        '<b>G.Wt:</b> ' + ((p.grossWt||p.weight||0)).toFixed(3) + 'g' +
+        (p.wastage ? ' &nbsp;\u00B7&nbsp; <b>Wastage:</b> '+p.wastage+'%' : '') +
+        ((p.stoneWt||p.stone) > 0 ? ' &nbsp;\u00B7&nbsp; <b>Stone:</b> '+(p.stoneWt||p.stone||0).toFixed(3)+'g' : '') +
+        (p.category ? '<br><span style="color:var(--text-dim);">\uD83D\uDCC1 '+p.category+'</span>' : '') +
+      '</div>' +
+      svgTag +
+      '<div class="barcode-num">' + (p.sku||'') + '</div>' +
+      '<div class="bc-price" style="display:flex;justify-content:center;gap:12px;">' +
+        (p.wastage ? '<span>Wastage: '+p.wastage+'%</span>' : '') +
+        '<span>Making: '+(p.making||0)+'%</span>' +
+      '</div>' +
+      (p.desc ? '<div style="font-size:10px;color:var(--muted);margin-top:3px;font-style:italic;">' + p.desc + '</div>' : '') +
+      '<div style="display:flex;gap:5px;justify-content:center;margin-top:10px;flex-wrap:wrap;">' +
+        '<button onclick="scanFromLibrary(\''+p.sku+'\')" style="flex:1;min-width:80px;font-size:11px;padding:6px 6px;border-radius:6px;background:#1a1500;border:1px solid #8B6914;color:#C9A84C;cursor:pointer;">\u2795 Add to Bill</button>' +
+        '<button onclick="printLibraryTag(\''+p.sku+'\')" style="font-size:11px;padding:6px 10px;border-radius:6px;background:#1a1400;border:1px solid #5a4010;color:#C9A84C;cursor:pointer;" title="Print Tag">\uD83D\uDDB8\uFE0F Print</button>' +
+        '<button onclick="deleteProduct('+realIdx+')" style="font-size:11px;padding:6px 10px;border-radius:6px;background:#1a1a1a;border:1px solid #333;color:#888;cursor:pointer;" title="Delete">\uD83D\uDDD1\uFE0F</button>' +
+      '</div>' +
+    '</div>';
+  });
+  grid.innerHTML = html;
 }
 
-function deleteProduct(i) {
-  state.products.splice(i, 1);
+function setMetalFilter(el, val) {
+  _libMetalFilter = val;
+  document.querySelectorAll('#lib-metal-chips .lib-chip').forEach(function(b){ b.classList.remove('active'); });
+  if (el) el.classList.add('active');
   renderLibrary();
-  saveState();
-  toast('Deleted');
+}
+
+function clearSearch() {
+  var el = document.getElementById('bc-search');
+  var clr= document.getElementById('bc-search-clear');
+  if (el)  el.value = '';
+  if (clr) clr.style.display = 'none';
+  renderLibrary();
+}
+
+function filterLibrary() {
+  var q   = v('bc-search');
+  var clr = document.getElementById('bc-search-clear');
+  if (clr) clr.style.display = q ? '' : 'none';
+  renderLibrary(q, _libMetalFilter, v('lib-sort') || 'newest');
 }
 
 function scanFromLibrary(sku) {
-  const product = state.products.find(p => p.sku === sku);
-  if (product) {
+  var p = state.products.find(function(x){ return x.sku === sku; });
+  if (p) {
     switchTabDirect('billing');
-    addItemToBill(product);
-    toast('✅ ' + product.name + ' added to bill');
+    addItemToBill(p);
+    toast('\u2705 ' + p.name + ' added to bill');
+  } else {
+    toast('\u274C Product not found: ' + sku);
   }
 }
 
+function deleteProduct(i) {
+  showConfirm('Delete this product?', function() {
+    state.products.splice(i, 1);
+    renderLibrary();
+    saveState();
+    toast('Deleted');
+  });
+}
+
 function clearLibrary() {
-  showConfirm('Delete all products from library?', () => {
+  showConfirm('Delete all products from library?', function() {
     state.products = [];
     renderLibrary();
     saveState();
   });
 }
 
-function printBarcode() {
-  const tag = document.getElementById('preview-tag');
-  if (!tag) { toast('Generate a barcode first'); return; }
-  const html = `<!DOCTYPE html><html><head><style>
-    body{margin:0;padding:10mm;font-family:'Courier New',monospace;background:#fff;}
-    .barcode-card{text-align:center;padding:10px;border:1px solid #ccc;border-radius:8px;max-width:200px;margin:auto;}
-    .bc-name{font-weight:700;font-size:14px;margin-bottom:2px;}
-    .bc-meta{font-size:10px;color:#666;margin-bottom:8px;}
-    .barcode-num{font-size:11px;margin-top:4px;}
-    .bc-price{font-size:12px;font-weight:600;margin-top:4px;}
-    svg rect{fill:#000;}
-    @media print{@page{margin:5mm;}}
-  </style></head><body>${tag.outerHTML}<script>window.onload=()=>window.print()<\/script></body></html>`;
-  const w = window.open('', '_blank');
-  w.document.write(html);
-  w.document.close();
-}
+
 
 // ═══════════════════════════════════════════
 // PRINT BILL
@@ -2432,15 +2983,16 @@ function printBill() {
   const custPhone = v('cust-phone') || '';
   const custAddr  = v('cust-addr')  || '';
   const custGstin = v('cust-gstin') || '';
-  const gst     = parseFloat(v('b-gst')) || s.gst;
+  const gst     = vn('b-gst', s.gst);
   const halfGST = gst / 2;
 
-  const totMetal = items.reduce((a,x)=>a+x.metalVal,0);
-  const totVA    = items.reduce((a,x)=>a+x.vaAmt,0);
-  const totIS    = items.reduce((a,x)=>a+x.isAmt,0);
-  const totSub   = items.reduce((a,x)=>a+x.sub,0);
-  const totGST   = items.reduce((a,x)=>a+x.gstAmt,0);
-  const totTotal = items.reduce((a,x)=>a+x.total,0);
+  const totMetal   = items.reduce((a,x)=>a+x.metalVal,0);
+  const totWastage = items.reduce((a,x)=>a+(x.wastageAmt||0),0);
+  const totMaking  = items.reduce((a,x)=>a+(x.makingAmt||0),0);
+  const totIS      = items.reduce((a,x)=>a+x.isAmt,0);
+  const totSub     = items.reduce((a,x)=>a+x.sub,0);
+  const totGST     = items.reduce((a,x)=>a+x.gstAmt,0);
+  const totTotal   = items.reduce((a,x)=>a+x.total,0);
   const now = new Date().toLocaleString('en-IN');
 
   const itemRows = items.map((item, i) => `
@@ -2449,10 +3001,11 @@ function printBill() {
         <span style="font-weight:bold;font-size:11px;">${i+1}. ${item.name}</span>
         <span style="font-weight:bold;">₹${fmt(item.total)}</span>
       </div>
-      <div style="font-size:10px;color:#555;margin-top:1px;">${metalLabel(item.metal)} | ${fmtW(item.weight)}g | Wastage:${item.wastage}% | Net:${fmtW(item.netWt)}g</div>
-      <div style="display:flex;gap:12px;font-size:10px;color:#444;margin-top:2px;">
+      <div style="font-size:10px;color:#555;margin-top:1px;">${metalLabel(item.metal)} | ${fmtW(item.weight)}g | Wastage:${item.usedWastage||0}% | Making:${item.usedMaking||0}%</div>
+      <div style="display:flex;gap:10px;font-size:10px;color:#444;margin-top:2px;flex-wrap:wrap;">
         <span>Metal: ₹${fmt(item.metalVal)}</span>
-        <span>VA: ₹${fmt(item.vaAmt)}</span>
+        ${(item.wastageAmt||0)>0?`<span>Wastage: ₹${fmt(item.wastageAmt)}</span>`:''}
+        ${(item.makingAmt||0)>0?`<span>Making: ₹${fmt(item.makingAmt)}</span>`:''}
         ${item.isAmt>0?`<span>HM: ₹${fmt(item.isAmt)}</span>`:''}
         <span>GST: ₹${fmt(item.gstAmt)}</span>
       </div>
@@ -2488,7 +3041,8 @@ function printBill() {
     ${itemRows}
     <div class="t-line"></div>
     <div class="t-row"><span>Metal Value</span><span>₹${fmt(totMetal)}</span></div>
-    <div class="t-row"><span>Making / VA</span><span>₹${fmt(totVA)}</span></div>
+    ${totWastage>0?`<div class="t-row"><span>Wastage</span><span>₹${fmt(totWastage)}</span></div>`:''}
+    ${totMaking>0?`<div class="t-row"><span>Making</span><span>₹${fmt(totMaking)}</span></div>`:''}
     ${totIS>0?`<div class="t-row"><span>Hallmark Charges</span><span>₹${fmt(totIS)}</span></div>`:''}
     <div class="t-row"><span>Sub Total</span><span>₹${fmt(totSub)}</span></div>
     <div class="t-row"><span>CGST @${halfGST}%</span><span>₹${fmt(Math.round(totSub*halfGST/100))}</span></div>
@@ -2502,9 +3056,7 @@ function printBill() {
   <script>window.onload=()=>window.print()<\/script>
   </body></html>`;
 
-  const w = window.open('', '_blank');
-  w.document.write(html);
-  w.document.close();
+  _triggerPrint(html);
   invoiceCount++;
   saveState();
   setInvoiceNo();
@@ -2593,18 +3145,20 @@ function loadSettings() {
   setVal('s-gstin', s.gstin);
   setVal('s-email', s.email);
   setVal('s-tagline', s.tagline);
-  setVal('s-va', s.va);
-  setVal('s-is', s.is);
+  setVal('s-wastage',    s.wastage !== undefined ? s.wastage : '');
+  setVal('s-making',     s.making  !== undefined ? s.making  : '');
+  setVal('s-is',  s.is);
   setVal('s-gst', s.gst);
   setVal('s-gold-rate', s.goldRate);
   setVal('s-silver-rate', s.silverRate);
-  setVal('b-gold-rate', s.goldRate);
-  setVal('b-silver-rate', s.silverRate);
-  setVal('b-va', s.va);
-  setVal('b-is', s.is);
+  setVal('b-gold-rate',  s.goldRate);
+  setVal('b-silver-rate',s.silverRate);
+  setVal('b-wastage',    s.wastage !== undefined ? s.wastage : '');
+  setVal('b-making',     s.making  !== undefined ? s.making  : '');
+  setVal('b-is',  s.is);
   setVal('b-gst', s.gst);
-  setVal('c-va', s.va);
-  setVal('c-is', s.is);
+  setVal('c-va',  s.making !== undefined ? s.making : (s.va || 0));
+  setVal('c-is',  s.is);
   setVal('c-gst', s.gst);
   // Apply logo and name everywhere
   const name = s.shopName || 'SwarnaSoft';
@@ -2631,11 +3185,12 @@ function saveSettings() {
     gstin:         v('s-gstin'),
     email:         v('s-email'),
     tagline:       v('s-tagline'),
-    va:            parseFloat(v('s-va'))          || 12,
-    is:            parseFloat(v('s-is'))          || 0,
-    gst:           parseFloat(v('s-gst'))         || 3,
-    goldRate:      parseFloat(v('s-gold-rate'))   || 72000,
-    silverRate:    parseFloat(v('s-silver-rate')) || 92000,
+    wastage:       vn('s-wastage',    state.settings.wastage),
+    making:        vn('s-making',     state.settings.making),
+    is:            vn('s-is',         state.settings.is),
+    gst:           vn('s-gst',        state.settings.gst),
+    goldRate:      vn('s-gold-rate',  state.settings.goldRate),
+    silverRate:    vn('s-silver-rate',state.settings.silverRate),
   };
   saveState();
   loadSettings();
@@ -2643,11 +3198,12 @@ function saveSettings() {
 }
 
 function applyDefaultRates() {
-  state.settings.va = parseFloat(v('s-va')) || 12;
-  state.settings.is = parseFloat(v('s-is')) || 0;
-  state.settings.gst = parseFloat(v('s-gst')) || 3;
-  state.settings.goldRate = parseFloat(v('s-gold-rate')) || 72000;
-  state.settings.silverRate = parseFloat(v('s-silver-rate')) || 92000;
+  state.settings.wastage    = vn('s-wastage',    state.settings.wastage);
+  state.settings.making     = vn('s-making',     state.settings.making);
+  state.settings.is         = vn('s-is',         state.settings.is);
+  state.settings.gst        = vn('s-gst',        state.settings.gst);
+  state.settings.goldRate   = vn('s-gold-rate',  state.settings.goldRate);
+  state.settings.silverRate = vn('s-silver-rate',state.settings.silverRate);
   loadSettings();
   updateHeaderRates();
   saveState();
@@ -2707,7 +3263,14 @@ function closeModal() {
 // HELPERS
 // ═══════════════════════════════════════════
 function v(id) { const el = document.getElementById(id); return el ? el.value : ''; }
-function setVal(id, val) { const el = document.getElementById(id); if (el) el.value = val || ''; }
+// Safe number reader — treats "0" as 0 (not falsy), only falls back if field is empty/NaN
+function vn(id, fallback) {
+  const raw = v(id);
+  if (raw === '') return fallback;
+  const n = parseFloat(raw);
+  return isNaN(n) ? fallback : n;
+}
+function setVal(id, val) { const el = document.getElementById(id); if (el) el.value = (val === 0 ? '0' : (val || '')); }
 function setText(id, txt) { const el = document.getElementById(id); if (el) el.textContent = txt; }
 // All amounts rounded to nearest rupee (no decimals)
 function fmt(n) { return Math.round(n || 0).toLocaleString('en-IN'); }
@@ -2723,6 +3286,308 @@ function toast(msg) {
   t.classList.add('show');
   clearTimeout(_toastTimer);
   _toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ═══════════════════════════════════════════
+// GOOGLE DRIVE BACKUP
+// ═══════════════════════════════════════════
+
+var DRIVE_CLIENT_ID  = '869193463147-lmvr3mqpjbi0g038dtl2trgcpak6miv3.apps.googleusercontent.com';
+var DRIVE_SCOPES     = 'https://www.googleapis.com/auth/drive.file email profile';
+var DRIVE_FILE_NAME  = 'swarna-backup.json';
+var _driveToken      = null;
+var _driveFileId     = null;
+var _driveAutoSync   = false;
+var _driveAutoTimer  = null;
+var _driveUserEmail  = '';
+
+// ── INIT: restore token from localStorage ──
+function driveInit() {
+  var saved = localStorage.getItem('swarna_drive_token');
+  var email = localStorage.getItem('swarna_drive_email');
+  var fileId= localStorage.getItem('swarna_drive_fileid');
+  var auto  = localStorage.getItem('swarna_drive_auto') === '1';
+  if (saved) {
+    _driveToken     = saved;
+    _driveUserEmail = email || '';
+    _driveFileId    = fileId || null;
+    _driveAutoSync  = auto;
+    driveUpdateUI(true);
+    // Verify token is still valid
+    drivePing();
+  } else {
+    driveUpdateUI(false);
+  }
+}
+
+// ── SIGN IN ──
+function driveSignIn() {
+  if (typeof google === 'undefined') {
+    toast('❌ Google Sign-In not loaded. Check internet connection.');
+    return;
+  }
+  var client = google.accounts.oauth2.initTokenClient({
+    client_id: DRIVE_CLIENT_ID,
+    scope:     DRIVE_SCOPES,
+    callback:  function(resp) {
+      if (resp.error) {
+        toast('❌ Sign-in failed: ' + resp.error);
+        return;
+      }
+      _driveToken = resp.access_token;
+      localStorage.setItem('swarna_drive_token', _driveToken);
+      // Get user email
+      fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+        headers: { Authorization: 'Bearer ' + _driveToken }
+      }).then(function(r){ return r.json(); }).then(function(u) {
+        _driveUserEmail = u.email || '';
+        localStorage.setItem('swarna_drive_email', _driveUserEmail);
+        driveUpdateUI(true);
+        toast('✅ Connected to Google Drive as ' + _driveUserEmail);
+        driveSaveNow(); // auto-save immediately after login
+      }).catch(function() {
+        driveUpdateUI(true);
+        toast('✅ Connected to Google Drive');
+        driveSaveNow();
+      });
+    }
+  });
+  client.requestAccessToken({ prompt: 'consent' });
+}
+
+// ── SIGN OUT ──
+function driveSignOut() {
+  if (_driveToken && typeof google !== 'undefined') {
+    google.accounts.oauth2.revoke(_driveToken);
+  }
+  _driveToken     = null;
+  _driveFileId    = null;
+  _driveUserEmail = '';
+  _driveAutoSync  = false;
+  clearInterval(_driveAutoTimer);
+  localStorage.removeItem('swarna_drive_token');
+  localStorage.removeItem('swarna_drive_email');
+  localStorage.removeItem('swarna_drive_fileid');
+  localStorage.removeItem('swarna_drive_auto');
+  driveUpdateUI(false);
+  toast('👋 Disconnected from Google Drive');
+}
+
+// ── PING: check if token still valid ──
+function drivePing() {
+  if (!_driveToken) return;
+  fetch('https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=' + _driveToken)
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      if (d.error) {
+        // Token expired - clear it
+        _driveToken = null;
+        localStorage.removeItem('swarna_drive_token');
+        driveUpdateUI(false);
+        toast('⚠️ Google Drive session expired. Please sign in again.');
+      } else {
+        // Token valid - start auto-sync if enabled
+        if (_driveAutoSync) driveStartAuto();
+      }
+    }).catch(function(){});
+}
+
+// ── SAVE TO DRIVE NOW ──
+function driveSaveNow() {
+  if (!_driveToken) { toast('Sign in to Google Drive first'); return; }
+  var data = JSON.stringify(getStatePayload(), null, 2);
+  var now  = new Date().toISOString();
+
+  // Check if file already exists
+  if (_driveFileId) {
+    driveUpdateFile(_driveFileId, data, now);
+  } else {
+    driveFindOrCreateFile(data, now);
+  }
+}
+
+// ── FIND EXISTING FILE OR CREATE NEW ──
+function driveFindOrCreateFile(data, now) {
+  // Search for existing file by name
+  fetch("https://www.googleapis.com/drive/v3/files?q=name%3D'" + DRIVE_FILE_NAME + "'+and+trashed%3Dfalse&fields=files(id,name,modifiedTime)", {
+    headers: { Authorization: 'Bearer ' + _driveToken }
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(res) {
+    if (res.error) {
+      driveHandleError(res.error);
+      return;
+    }
+    if (res.files && res.files.length > 0) {
+      // File exists - update it
+      _driveFileId = res.files[0].id;
+      localStorage.setItem('swarna_drive_fileid', _driveFileId);
+      driveUpdateFile(_driveFileId, data, now);
+    } else {
+      // Create new file
+      driveCreateFile(data, now);
+    }
+  })
+  .catch(function(e) { toast('❌ Drive error: ' + e.message); });
+}
+
+// ── CREATE NEW FILE ON DRIVE ──
+function driveCreateFile(data, now) {
+  var boundary = '-------swarna_boundary';
+  var meta = JSON.stringify({ name: DRIVE_FILE_NAME, mimeType: 'application/json' });
+  var body = '--' + boundary + '\r\n'
+    + 'Content-Type: application/json\r\n\r\n' + meta + '\r\n'
+    + '--' + boundary + '\r\n'
+    + 'Content-Type: application/json\r\n\r\n' + data + '\r\n'
+    + '--' + boundary + '--';
+
+  fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name', {
+    method:  'POST',
+    headers: {
+      Authorization:  'Bearer ' + _driveToken,
+      'Content-Type': 'multipart/related; boundary=' + boundary
+    },
+    body: body
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(f) {
+    if (f.error) { driveHandleError(f.error); return; }
+    _driveFileId = f.id;
+    localStorage.setItem('swarna_drive_fileid', _driveFileId);
+    driveSetLastSync(now);
+    setText('drive-file-info', '📄 ' + DRIVE_FILE_NAME + ' (id: ' + _driveFileId.slice(0,8) + '...)');
+    toast('☁️ Saved to Google Drive');
+  })
+  .catch(function(e){ toast('❌ Drive save failed: ' + e.message); });
+}
+
+// ── UPDATE EXISTING FILE ──
+function driveUpdateFile(fileId, data, now) {
+  fetch('https://www.googleapis.com/upload/drive/v3/files/' + fileId + '?uploadType=media', {
+    method:  'PATCH',
+    headers: {
+      Authorization:  'Bearer ' + _driveToken,
+      'Content-Type': 'application/json'
+    },
+    body: data
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(f) {
+    if (f.error) { driveHandleError(f.error); return; }
+    driveSetLastSync(now);
+    toast('☁️ Synced to Google Drive');
+  })
+  .catch(function(e){ toast('❌ Drive sync failed: ' + e.message); });
+}
+
+// ── RESTORE FROM DRIVE ──
+function driveRestoreBackup() {
+  if (!_driveToken) { toast('Sign in to Google Drive first'); return; }
+  if (!_driveFileId) {
+    toast('No backup file found on Drive. Save first.');
+    return;
+  }
+  showConfirm('Restore data from Google Drive? Current data will be replaced.', function() {
+    fetch('https://www.googleapis.com/drive/v3/files/' + _driveFileId + '?alt=media', {
+      headers: { Authorization: 'Bearer ' + _driveToken }
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(parsed) {
+      if (parsed.error) { driveHandleError(parsed.error); return; }
+      state.products    = parsed.products    || [];
+      state.settings    = Object.assign({}, state.settings, parsed.settings);
+      invoiceCount      = parsed.invoiceCount || 1;
+      state.rateHistory = parsed.rateHistory  || [];
+      state.bills       = (parsed.bills && parsed.bills.length > 0)
+        ? parsed.bills
+        : [{ items:[], label:'Bill 1', custName:'', custPhone:'', custAddr:'', custGstin:'' }];
+      activeBillIndex   = 0;
+      saveState();
+      loadSettings();
+      renderLibrary();
+      renderDashboard();
+      renderBillTabs();
+      renderBillTable();
+      recalcBill();
+      toast('✅ Data restored from Google Drive');
+    })
+    .catch(function(e){ toast('❌ Restore failed: ' + e.message); });
+  });
+}
+
+// ── AUTO SYNC ──
+function driveToggleAuto() {
+  _driveAutoSync = !_driveAutoSync;
+  localStorage.setItem('swarna_drive_auto', _driveAutoSync ? '1' : '0');
+  var btn = document.getElementById('btn-drive-auto');
+  if (_driveAutoSync) {
+    driveStartAuto();
+    if (btn) { btn.textContent = '🔄 Auto-Sync: ON'; btn.style.borderColor = '#4CAF50'; btn.style.color = '#4CAF50'; }
+    toast('✅ Auto-sync enabled — saves to Drive every 5 min');
+  } else {
+    clearInterval(_driveAutoTimer);
+    if (btn) { btn.textContent = '🔄 Enable Auto-Sync'; btn.style.borderColor = ''; btn.style.color = ''; }
+    toast('Auto-sync disabled');
+  }
+}
+
+function driveStartAuto() {
+  clearInterval(_driveAutoTimer);
+  _driveAutoTimer = setInterval(function() {
+    if (_driveToken) driveSaveNow();
+  }, 5 * 60 * 1000); // every 5 minutes
+}
+
+// ── HELPERS ──
+function driveSetLastSync(isoTime) {
+  var d = new Date(isoTime);
+  var str = d.toLocaleString('en-IN');
+  localStorage.setItem('swarna_drive_lastsync', str);
+  setText('drive-last-sync', str);
+}
+
+function driveHandleError(err) {
+  if (err.code === 401) {
+    _driveToken = null;
+    localStorage.removeItem('swarna_drive_token');
+    driveUpdateUI(false);
+    toast('⚠️ Drive session expired. Please sign in again.');
+  } else {
+    toast('❌ Drive error: ' + (err.message || err.code));
+  }
+}
+
+function driveUpdateUI(connected) {
+  var statusBox  = document.getElementById('drive-status-box');
+  var notConn    = document.getElementById('drive-not-connected');
+  var connAct    = document.getElementById('drive-connected-actions');
+  var emailEl    = document.getElementById('drive-user-email');
+  var syncEl     = document.getElementById('drive-last-sync');
+  var autoBtn    = document.getElementById('btn-drive-auto');
+
+  if (connected) {
+    if (statusBox) statusBox.style.display = '';
+    if (notConn)   notConn.style.display   = 'none';
+    if (connAct)   connAct.style.display   = 'flex';
+    if (emailEl)   emailEl.textContent     = _driveUserEmail;
+    var lastSync = localStorage.getItem('swarna_drive_lastsync') || 'Never';
+    if (syncEl)    syncEl.textContent      = lastSync;
+    if (autoBtn) {
+      if (_driveAutoSync) {
+        autoBtn.textContent    = '🔄 Auto-Sync: ON';
+        autoBtn.style.color    = '#4CAF50';
+        autoBtn.style.borderColor = '#4CAF50';
+      } else {
+        autoBtn.textContent    = '🔄 Enable Auto-Sync';
+        autoBtn.style.color    = '';
+        autoBtn.style.borderColor = '';
+      }
+    }
+  } else {
+    if (statusBox) statusBox.style.display = 'none';
+    if (notConn)   notConn.style.display   = 'flex';
+    if (connAct)   connAct.style.display   = 'none';
+  }
 }
 </script>
 </body>
