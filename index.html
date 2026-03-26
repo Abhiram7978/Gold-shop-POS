@@ -2,12 +2,6 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#C9A84C">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="SwarnaSoft">
-<link rel="apple-touch-icon" href="192.png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SwarnaSoft – Gold Shop POS</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -2380,7 +2374,7 @@ function switchTabDirect(name) {
 
 // ── Constants ──
 var TAG_SIZES = {
-  rattail: { w:336, h:52, mmW:'89mm', mmH:'14mm' },
+  rattail: { w:280, h:44, mmW:'82mm',  mmH:'12mm' },
   small:   { w:151, h:94  },
   medium:  { w:227, h:113 },
   large:   { w:302, h:151 },
@@ -2535,11 +2529,11 @@ function buildTagHTML(rawProduct, size, style, forPrint) {
     var preBcH = preH - 10;
 
     // ── PRINT DIMENSIONS (89mm × 11mm page, split ~52mm info / 1mm fold / 36mm barcode) ──
-    var INFO_MM  = '52mm';
-    var BC_MM    = '33mm';
+    var INFO_MM  = '27mm';
+    var BC_MM    = '27mm';
     // barcode SVG px: at 96dpi, 33mm ≈ 125px wide; height 11mm - 2mm padding = 9mm ≈ 34px
-    var prtBcSvgW = forPrint ? 125 : (bcW - 4);
-    var prtBcSvgH = forPrint ? 36  : preBcH;
+    var prtBcSvgW = forPrint ? 96 : (bcW - 4);
+    var prtBcSvgH = forPrint ? 28  : preBcH;
 
     var svgRt = generateBarcodeSVG(p.sku, prtBcSvgW, prtBcSvgH);
 
@@ -2549,8 +2543,8 @@ function buildTagHTML(rawProduct, size, style, forPrint) {
     var fzName   = forPrint ? '7pt'   : '8.5px';
     var fzMetal  = forPrint ? '5pt'   : '6.5px';
     var fzField  = forPrint ? '5pt'   : '6px';
-    var fzSKU    = forPrint ? '4.5pt' : '5.5px';
-    var fieldGap = forPrint ? '2mm'   : '4px';
+    var fzSKU    = forPrint ? '4pt'   : '5.5px';
+    var fieldGap = forPrint ? '1.5mm' : '4px';
 
     // ── FIELD ROW ──
     var fields = [];
@@ -2565,59 +2559,79 @@ function buildTagHTML(rawProduct, size, style, forPrint) {
     // ── SHOP LOGO ──
     var logoHtml = '';
     if (shopLogo && show.shoplogo) {
-      var logoSz = forPrint ? '7mm' : '16px';
+      var logoSz = forPrint ? '6mm' : '14px';
       logoHtml = '<img src="'+shopLogo+'" style="width:'+logoSz+';height:'+logoSz+';object-fit:contain;flex-shrink:0;border-radius:1px;vertical-align:middle;" alt="logo">';
     }
 
     // ── BIS LOGO ──
-    var bisW = forPrint ? '11mm' : 20;
-    var bisH = forPrint ? '11mm' : 20;
+    var bisW = forPrint ? '8mm' : 14;
+    var bisH = forPrint ? '8mm' : 14;
     var bisHtml = show.bis ? bisSVG(bisW, bisH) : '';
 
     if (forPrint) {
       // ══════════════════════════════════════════════
-      // PRINT VERSION — table-based layout for reliable
-      // cross-browser print rendering at exact mm sizes
+      // PRINT VERSION — compact 27mm info section
+      // Single-column table, max readability in 12mm
       // ══════════════════════════════════════════════
-      var topRow = '';
-      if (show.shopname || logoHtml || bisHtml) {
-        topRow = '<tr>'
-          +'<td style="padding:0;vertical-align:middle;white-space:nowrap;">'
-            + (logoHtml ? '<span style="margin-right:1mm;">'+logoHtml+'</span>' : '')
-            +'<span style="font-size:'+fzShop+';font-weight:bold;color:'+st.accent+';">'+shop+'</span>'
-          +'</td>'
-          +'<td style="padding:0;text-align:right;vertical-align:top;">'+bisHtml+'</td>'
-          +'</tr>';
-      }
-      var nameRow = show.itemname
-        ? '<tr><td colspan="2" style="padding:0;font-size:'+fzName+';font-weight:bold;color:'+st.text+';white-space:nowrap;overflow:hidden;">'+p.name+'</td></tr>'
+
+      // ROW 1: Shop logo (if any) + Shop name + BIS (right)
+      var shopNameSpan = (show.shopname && shop)
+        ? '<span style="font-size:'+fzShop+';font-weight:bold;color:'+st.accent+';letter-spacing:0.2pt;">'+shop+'</span>'
         : '';
-      var metalRow = show.metal
-        ? '<tr><td colspan="2" style="padding:0;font-size:'+fzMetal+';color:'+st.sub+';">'+(METAL_FULL[p.metal]||p.metal)+' / '+fineness+'</td></tr>'
+      var shopLogoSpan = logoHtml
+        ? '<span style="margin-right:0.5mm;vertical-align:middle;">'+logoHtml+'</span>'
         : '';
-      var fieldRow = fieldsHtml
-        ? '<tr><td colspan="2" style="padding:0;font-size:'+fzField+';color:'+st.sub+';white-space:nowrap;">'
-            + fields.map(function(f){ return '<span style="margin-right:1.5mm;">'+f+'</span>'; }).join('')
+      var bisSpan = bisHtml
+        ? '<span style="float:right;line-height:1;">'+bisHtml+'</span>'
+        : '';
+      var row1 = (shopNameSpan || shopLogoSpan || bisSpan)
+        ? '<tr><td style="padding:0 0 0.2mm 0;white-space:nowrap;overflow:hidden;line-height:1.1;">'
+            + bisSpan + shopLogoSpan + shopNameSpan
           +'</td></tr>'
         : '';
 
+      // ROW 2: Item name — largest, boldest
+      var row2 = show.itemname
+        ? '<tr><td style="padding:0 0 0.2mm 0;font-size:'+fzName+';font-weight:bold;color:'+st.text+';white-space:nowrap;overflow:hidden;line-height:1.1;">'+p.name+'</td></tr>'
+        : '';
+
+      // ROW 3: Metal + key weight fields on ONE line
+      var metalStr = show.metal ? (fineness ? fineness : (METAL_FULL[p.metal]||p.metal)) : '';
+      var wtStr = '';
+      if (show.grosswt) wtStr += 'G:'+p.grossWt.toFixed(2)+'g ';
+      if (show.wastage&&p.wastage) wtStr += 'W:'+p.wastage+'% ';
+      if (show.netwt)   wtStr += 'N:'+p.netWt.toFixed(2)+'g';
+      var row3Parts = [metalStr, wtStr.trim()].filter(Boolean).join('  ');
+      var row3 = row3Parts
+        ? '<tr><td style="padding:0 0 0.1mm 0;font-size:'+fzMetal+';color:'+st.sub+';white-space:nowrap;overflow:hidden;line-height:1.1;">'+row3Parts+'</td></tr>'
+        : '';
+
+      // ROW 4: Making / Stone / MRP — only if present
+      var row4Parts = [];
+      if (show.making&&p.making)   row4Parts.push('Mk:'+p.making+'%');
+      if (show.stonewt&&p.stoneWt) row4Parts.push('St:'+p.stoneWt.toFixed(2)+'g');
+      if (show.mrp&&p.mrp)         row4Parts.push('₹'+p.mrp);
+      if (show.huid&&p.huid)       row4Parts.push(p.huid);
+      var row4 = row4Parts.length
+        ? '<tr><td style="padding:0;font-size:'+fzField+';color:'+st.sub+';white-space:nowrap;overflow:hidden;line-height:1.1;">'+row4Parts.join('  ')+'</td></tr>'
+        : '';
+
       var infoTable = '<table style="width:'+INFO_MM+';border-collapse:collapse;table-layout:fixed;">'
-        + '<colgroup><col style="width:calc('+INFO_MM+' - 9mm)"><col style="width:9mm"></colgroup>'
-        + topRow + nameRow + metalRow + fieldRow
+        + row1 + row2 + row3 + row4
         +'</table>';
 
-      var bcTable = '<table style="width:'+BC_MM+';height:14mm;border-collapse:collapse;">'
-        +'<tr><td style="padding:0 0.5mm;text-align:center;vertical-align:middle;">'
+      var bcTable = '<table style="width:'+BC_MM+';height:12mm;border-collapse:collapse;">'
+        +'<tr><td style="padding:0.3mm 0.3mm 0 0.3mm;text-align:center;vertical-align:middle;">'
           + svgRt
-          + (show.sku ? '<div style="font-size:'+fzSKU+';font-family:monospace;color:'+st.sub+';margin-top:0.3mm;white-space:nowrap;">'+p.sku+'</div>' : '')
+          + (show.sku ? '<div style="font-size:'+fzSKU+';font-family:monospace;color:'+st.sub+';margin-top:0.2mm;white-space:nowrap;text-align:center;">'+p.sku+'</div>' : '')
         +'</td></tr>'
         +'</table>';
 
-      return '<table style="width:89mm;height:14mm;border-collapse:collapse;border:0.3mm solid #bbb;background:'+st.bg+';font-family:'+st.font+';table-layout:fixed;">'
-        +'<tr style="height:14mm;">'
-          +'<td style="padding:0.5mm 0.5mm 0.3mm 1mm;vertical-align:middle;width:'+INFO_MM+';">'+infoTable+'</td>'
-          +'<td style="padding:0;border-left:0.3mm dashed #bbb;width:0;"></td>'
+      return '<table style="width:54mm;height:12mm;border-collapse:collapse;border:0.2mm solid #bbb;background:'+st.bg+';font-family:'+st.font+';table-layout:fixed;">'
+        +'<tr style="height:12mm;">'
           +'<td style="padding:0;vertical-align:middle;text-align:center;width:'+BC_MM+';">'+bcTable+'</td>'
+          +'<td style="padding:0;border-right:0.3mm dashed #bbb;width:0;"></td>'
+          +'<td style="padding:0.5mm 0.3mm 0.3mm 0.8mm;vertical-align:top;width:'+INFO_MM+';">'+infoTable+'</td>'
         +'</tr>'
         +'</table>';
     }
@@ -2836,8 +2850,8 @@ function _doPrintTags(products) {
     (isRattail
       // Rattail: exact 89×11mm page, zero margins, table-based horizontal layout
       ? '@media print{'
-        + '@page{margin:0!important;size:89mm 14mm;}'
-        + 'html,body{width:89mm;height:14mm;overflow:hidden;margin:0;padding:0;}'
+        + '@page{margin:0!important;size:82mm 12mm;}'
+        + 'html,body{width:82mm;height:12mm;overflow:hidden;margin:0;padding:0;}'
         + 'table{page-break-inside:avoid;}'
         + '}'
         + 'body{display:block;}'
