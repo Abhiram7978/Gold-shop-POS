@@ -2,12 +2,6 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#C9A84C">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="SwarnaSoft">
-<link rel="apple-touch-icon" href="192.png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SwarnaSoft – Gold Shop POS</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -1165,8 +1159,8 @@
           <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;"><input type="checkbox" id="tg-mrp" onchange="generateBarcode()"> MRP</label>
           <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;"><input type="checkbox" id="tg-sku" checked onchange="generateBarcode()"> SKU Code</label>
           <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;"><input type="checkbox" id="tg-category" onchange="generateBarcode()"> Category</label>
-          <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;color:#e8a000;"><input type="checkbox" id="tg-bis" checked onchange="generateBarcode()"> ▲ BIS Logo</label>
-          <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;color:var(--gold);"><input type="checkbox" id="tg-shoplogo" checked onchange="generateBarcode()"> 🖼 Shop Logo</label>
+          <label style="display:none;"><input type="checkbox" id="tg-bis" onchange="generateBarcode()"> ▲ BIS Logo</label>
+          <label style="display:none;"><input type="checkbox" id="tg-shoplogo" onchange="generateBarcode()"> 🖼 Shop Logo</label>
         </div>
 
         <div class="form-row-inline">
@@ -1725,6 +1719,11 @@ function clearRateHistory() {
   loadSettings();
   renderLibrary();
   updateHeaderRates();
+  // Force hidden tag options to unchecked
+  var _hbis = document.getElementById('tg-bis');
+  var _hlogo = document.getElementById('tg-shoplogo');
+  if (_hbis)  _hbis.checked  = false;
+  if (_hlogo) _hlogo.checked = false;
   renderBillTabs();
   loadCustFromBill(0);
   setInvoiceNo();
@@ -2498,7 +2497,7 @@ function buildTagHTML(rawProduct, size, style, forPrint) {
     return '<img src="'+BIS_LOGO_SRC+'" width="'+w+'" height="'+h+'" style="flex-shrink:0;object-fit:contain;display:inline-block;" alt="BIS">';
   }
 
-  function chk(id) { return forPrint ? true : getBcCheckbox(id); }
+  function chk(id) { return getBcCheckbox(id); } // always respect checkbox state
 
   var show = {
     shopname: chk('tg-shopname'),
@@ -2545,11 +2544,11 @@ function buildTagHTML(rawProduct, size, style, forPrint) {
 
     // ── FONT SIZES ──
     // Print: pt units tuned for 11mm height (≈31pt total usable)
-    var fzShop   = forPrint ? '5.5pt' : '7px';
-    var fzName   = forPrint ? '7pt'   : '8.5px';
-    var fzMetal  = forPrint ? '5pt'   : '6.5px';
-    var fzField  = forPrint ? '5pt'   : '6px';
-    var fzSKU    = forPrint ? '4pt'   : '5.5px';
+    var fzShop   = forPrint ? '6pt'   : '7px';
+    var fzName   = forPrint ? '7.5pt' : '8.5px';
+    var fzMetal  = forPrint ? '5.5pt' : '6.5px';
+    var fzField  = forPrint ? '5.5pt' : '6px';
+    var fzSKU    = forPrint ? '4.5pt' : '5.5px';
     var fieldGap = forPrint ? '1.5mm' : '4px';
 
     // ── FIELD ROW ──
@@ -2564,7 +2563,7 @@ function buildTagHTML(rawProduct, size, style, forPrint) {
 
     // ── SHOP LOGO ──
     var logoHtml = '';
-    if (shopLogo && show.shoplogo) {
+    if (shopLogo && show.shoplogo && getBcCheckbox('tg-shoplogo')) {
       var logoSz = forPrint ? '6mm' : '14px';
       logoHtml = '<img src="'+shopLogo+'" style="width:'+logoSz+';height:'+logoSz+';object-fit:contain;flex-shrink:0;border-radius:1px;vertical-align:middle;" alt="logo">';
     }
@@ -2582,7 +2581,7 @@ function buildTagHTML(rawProduct, size, style, forPrint) {
 
       // ROW 1: Shop logo (if any) + Shop name + BIS (right)
       var shopNameSpan = (show.shopname && shop)
-        ? '<span style="font-size:'+fzShop+';font-weight:bold;color:'+st.accent+';letter-spacing:0.2pt;">'+shop+'</span>'
+        ? '<span style="font-size:'+fzShop+';font-weight:900;font-family:monospace;font-style:normal;color:#000;letter-spacing:0.2pt;">'+shop+'</span>'
         : '';
       var shopLogoSpan = logoHtml
         ? '<span style="margin-right:0.5mm;vertical-align:middle;">'+logoHtml+'</span>'
@@ -2591,53 +2590,56 @@ function buildTagHTML(rawProduct, size, style, forPrint) {
         ? '<span style="float:right;line-height:1;">'+bisHtml+'</span>'
         : '';
       var row1 = (shopNameSpan || shopLogoSpan || bisSpan)
-        ? '<tr><td style="padding:0 0 0.2mm 0;white-space:nowrap;overflow:hidden;line-height:1.1;">'
+        ? '<tr><td style="padding:0;white-space:nowrap;overflow:hidden;line-height:1.2;font-family:monospace;color:#000;font-weight:700;font-style:normal;">'
             + bisSpan + shopLogoSpan + shopNameSpan
           +'</td></tr>'
         : '';
 
       // ROW 2: Item name — largest, boldest
       var row2 = show.itemname
-        ? '<tr><td style="padding:0 0 0.2mm 0;font-size:'+fzName+';font-weight:bold;color:'+st.text+';white-space:nowrap;overflow:hidden;line-height:1.1;">'+p.name+'</td></tr>'
+        ? '<tr><td style="padding:0;font-size:'+fzName+';font-weight:900;font-family:monospace;font-style:normal;color:#000;white-space:nowrap;overflow:hidden;line-height:1.15;">'+p.name+'</td></tr>'
         : '';
 
-      // ROW 3: Metal + key weight fields on ONE line
-      var metalStr = show.metal ? (fineness ? fineness : (METAL_FULL[p.metal]||p.metal)) : '';
-      var wtStr = '';
-      if (show.grosswt) wtStr += 'G:'+p.grossWt.toFixed(2)+'g ';
-      if (show.wastage&&p.wastage) wtStr += 'W:'+p.wastage+'% ';
-      if (show.netwt)   wtStr += 'N:'+p.netWt.toFixed(2)+'g';
-      var row3Parts = [metalStr, wtStr.trim()].filter(Boolean).join('  ');
-      var row3 = row3Parts
-        ? '<tr><td style="padding:0 0 0.1mm 0;font-size:'+fzMetal+';color:'+st.sub+';white-space:nowrap;overflow:hidden;line-height:1.1;">'+row3Parts+'</td></tr>'
+      // ROW 3: Karat·Fineness + Gross wt + Wastage on ONE line
+      // metalLabel: e.g. '22K·916', '18K·750', 'Silver·925'
+      var KARAT_LABEL = { gold22:'22K·916', gold24:'24K·999', gold18:'18K·750',
+                          gold21:'21K·875', gold14:'14K·585', silver:'Silver·925' };
+      var metalStr = KARAT_LABEL[p.metal] || (METAL_FULL[p.metal] || p.metal);
+      var r3Parts = [];
+      if (show.metal)              r3Parts.push(metalStr);
+      if (show.grosswt)            r3Parts.push('G:'+p.grossWt.toFixed(3)+'g');
+      if (show.wastage&&p.wastage) r3Parts.push('W:'+p.wastage+'%');
+      var row3 = r3Parts.length
+        ? '<tr><td style="padding:0;font-size:'+fzMetal+';font-weight:700;font-family:monospace;font-style:normal;color:#000;white-space:nowrap;overflow:hidden;line-height:1.15;">'+r3Parts.join('  ')+'</td></tr>'
         : '';
 
-      // ROW 4: Making / Stone / MRP — only if present
+      // ROW 4: Net wt + Making + Stone + MRP + HUID
       var row4Parts = [];
+      if (show.netwt)              row4Parts.push('N:'+p.netWt.toFixed(3)+'g');
       if (show.making&&p.making)   row4Parts.push('Mk:'+p.making+'%');
-      if (show.stonewt&&p.stoneWt) row4Parts.push('St:'+p.stoneWt.toFixed(2)+'g');
+      if (show.stonewt&&p.stoneWt) row4Parts.push('St:'+p.stoneWt.toFixed(3)+'g');
       if (show.mrp&&p.mrp)         row4Parts.push('₹'+p.mrp);
       if (show.huid&&p.huid)       row4Parts.push(p.huid);
       var row4 = row4Parts.length
-        ? '<tr><td style="padding:0;font-size:'+fzField+';color:'+st.sub+';white-space:nowrap;overflow:hidden;line-height:1.1;">'+row4Parts.join('  ')+'</td></tr>'
+        ? '<tr><td style="padding:0;font-size:'+fzField+';font-weight:700;font-family:monospace;font-style:normal;color:#000;white-space:nowrap;overflow:hidden;line-height:1.15;">'+row4Parts.join(' ')+'</td></tr>'
         : '';
 
-      var infoTable = '<table style="width:'+INFO_MM+';border-collapse:collapse;table-layout:fixed;">'
+      var infoTable = '<table style="width:'+INFO_MM+';border-collapse:collapse;table-layout:fixed;font-family:monospace;color:#000;font-weight:700;font-style:normal;">'
         + row1 + row2 + row3 + row4
         +'</table>';
 
       var bcTable = '<table style="width:'+BC_MM+';height:12mm;border-collapse:collapse;">'
         +'<tr><td style="padding:0.3mm 0.3mm 0 0.3mm;text-align:center;vertical-align:middle;">'
           + svgRt
-          + (show.sku ? '<div style="font-size:'+fzSKU+';font-family:monospace;color:'+st.sub+';margin-top:0.2mm;white-space:nowrap;text-align:center;">'+p.sku+'</div>' : '')
+          + (show.sku ? '<div style="font-size:'+fzSKU+';font-family:monospace;font-weight:700;color:#000;margin-top:0.2mm;white-space:nowrap;text-align:center;">'+p.sku+'</div>' : '')
         +'</td></tr>'
         +'</table>';
 
-      return '<table style="width:54mm;height:12mm;border-collapse:collapse;border:0.2mm solid #bbb;background:'+st.bg+';font-family:'+st.font+';table-layout:fixed;">'
+      return '<table style="width:54mm;height:12mm;border-collapse:collapse;border:0.2mm solid #bbb;background:'+st.bg+';font-family:monospace;table-layout:fixed;border-spacing:0;">'
         +'<tr style="height:12mm;">'
           +'<td style="padding:0;vertical-align:middle;text-align:center;width:'+BC_MM+';">'+bcTable+'</td>'
           +'<td style="padding:0;border-right:0.3mm dashed #bbb;width:0;"></td>'
-          +'<td style="padding:0.5mm 0.3mm 0.3mm 0.8mm;vertical-align:top;width:'+INFO_MM+';">'+infoTable+'</td>'
+          +'<td style="padding:0 0 0 0.5mm;vertical-align:top;width:'+INFO_MM+';">'+infoTable+'</td>'
         +'</tr>'
         +'</table>';
     }
@@ -3198,11 +3200,16 @@ function handleLogoUpload(event) {
 
 function removeLogo() {
   showConfirm('Remove shop logo?', () => {
-    state.settings.shopLogo = '';
+    state.settings.shopLogo = null;
     applyLogoEverywhere(null);
-    document.getElementById('logo-file-info').textContent = '';
+    var fileInfo = document.getElementById('logo-file-info');
+    if (fileInfo) fileInfo.textContent = '';
+    var fileInput = document.getElementById('logo-file-input');
+    if (fileInput) fileInput.value = '';
     saveState();
-    toast('🗑️ Logo removed');
+    // Force reload settings to reflect removal everywhere
+    loadSettings();
+    toast('🗑️ Logo removed successfully');
   });
 }
 
