@@ -2,12 +2,6 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#C9A84C">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="SwarnaSoft">
-<link rel="apple-touch-icon" href="192.png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SwarnaSoft – Gold Shop POS</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -27,6 +21,63 @@
     --red:        #E57373;
     --blue:       #64B5F6;
   }
+
+  /* ── LIGHT THEME ── */
+  body.light-theme {
+    --deep:       #F5F0E8;
+    --surface:    #FFFFFF;
+    --panel:      #FAFAF7;
+    --border:     #D8D0C0;
+    --muted:      #999;
+    --text:       #1A1200;
+    --text-dim:   #666;
+    --gold:       #B8860B;
+    --gold-light: #D4A017;
+    --gold-dark:  #8B6914;
+  }
+  body.light-theme { background: var(--deep); color: var(--text); }
+  body.light-theme header {
+    background: linear-gradient(135deg, #FFF8E7 0%, #FFF0C0 100%);
+    border-bottom: 1px solid var(--gold-dark);
+  }
+  body.light-theme .tabs { background: var(--surface); border-bottom: 1px solid var(--border); }
+  body.light-theme .card { background: var(--panel); border-color: var(--border); }
+  body.light-theme input, body.light-theme select, body.light-theme textarea {
+    background: #fff; border-color: var(--border); color: var(--text);
+  }
+  body.light-theme .rate-pill { background: #fff; border-color: var(--border); }
+  body.light-theme .tile { background: var(--panel); border-color: var(--border); }
+  body.light-theme .bill-table th { background: #F0EAD6; }
+  body.light-theme .bill-table tr:hover td { background: #F5F0E8; }
+  body.light-theme .result-box { background: linear-gradient(135deg, #FFF8E7 0%, #FFF 100%); border-color: var(--gold-dark); }
+  body.light-theme .scanner-bar { background: #fff; }
+  body.light-theme .lib-search-wrap { background: #fff; }
+  body.light-theme #toast { background: #fff; border-color: var(--gold-dark); color: var(--text); }
+  body.light-theme .rate-bar { background: var(--panel); border-color: var(--border); }
+  body.light-theme .bills-switcher { background: var(--panel); border-color: var(--border); }
+  body.light-theme .lib-filter-bar { background: #fff; border-color: var(--border); }
+  body.light-theme .lib-chip { background: #fff; border-color: var(--border); }
+  body.light-theme .lib-chip.active { background: #FFF8E7; border-color: var(--gold); }
+  body.light-theme .barcode-card { box-shadow: 0 2px 12px rgba(0,0,0,.15); }
+  body.light-theme #modal-overlay > div { background: #fff; border-color: var(--border); }
+  body.light-theme .btn-outline { border-color: var(--border); color: var(--text-dim); }
+  body.light-theme .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+  body.light-theme .derived-tile { background: #FFF8E7; border-color: var(--border); }
+  body.light-theme .rate-hist-row { background: #fff; border-color: var(--border); }
+  /* Noise overlay lighter in light mode */
+  body.light-theme::before { opacity: .015; }
+
+  /* ── THEME TOGGLE BUTTON ── */
+  #theme-toggle {
+    background: none; border: 1px solid var(--border);
+    border-radius: 20px; cursor: pointer;
+    padding: 5px 10px; font-size: 16px;
+    display: flex; align-items: center; gap: 5px;
+    color: var(--text-dim); flex-shrink: 0;
+    transition: all .2s; white-space: nowrap;
+  }
+  #theme-toggle:hover { border-color: var(--gold); color: var(--gold); }
+  @media(max-width:480px) { #theme-toggle .theme-label { display:none; } }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -576,6 +627,10 @@
       <span id="live-time"></span>
     </div>
   </div>
+  <button id="theme-toggle" onclick="toggleTheme()" title="Toggle Light/Dark">
+    <span id="theme-icon">☀️</span>
+    <span class="theme-label" id="theme-label">Light</span>
+  </button>
 </header>
 
 <!-- TABS -->
@@ -3031,7 +3086,7 @@ function renderLibrary(query, metalFilter, sort) {
       '<div style="display:flex;gap:5px;justify-content:center;margin-top:10px;flex-wrap:wrap;">' +
         '<button onclick="scanFromLibrary(\''+p.sku+'\')" style="flex:1;min-width:80px;font-size:11px;padding:6px 6px;border-radius:6px;background:#1a1500;border:1px solid #8B6914;color:#C9A84C;cursor:pointer;">\u2795 Add to Bill</button>' +
         '<button onclick="printLibraryTag(\''+p.sku+'\')" style="font-size:11px;padding:6px 10px;border-radius:6px;background:#1a1400;border:1px solid #5a4010;color:#C9A84C;cursor:pointer;" title="Print Tag">\uD83D\uDDB8\uFE0F Print</button>' +
-        '<button onclick="deleteProduct('+realIdx+')" style="font-size:11px;padding:6px 10px;border-radius:6px;background:#1a1a1a;border:1px solid #333;color:#888;cursor:pointer;" title="Delete">\uD83D\uDDD1\uFE0F</button>' +
+        '<button onclick="deleteProduct(\''+p.sku+'\')" style="font-size:11px;padding:6px 10px;border-radius:6px;background:#1a1a1a;border:1px solid #333;color:#888;cursor:pointer;" title="Delete">\uD83D\uDDD1\uFE0F</button>' +
       '</div>' +
     '</div>';
   });
@@ -3071,12 +3126,15 @@ function scanFromLibrary(sku) {
   }
 }
 
-function deleteProduct(i) {
+function deleteProduct(sku) {
   showConfirm('Delete this product?', function() {
-    state.products.splice(i, 1);
+    var idx = state.products.findIndex(function(x){ return x.sku === sku; });
+    if (idx === -1) { toast('❌ Product not found'); return; }
+    var name = state.products[idx].name || sku;
+    state.products.splice(idx, 1);
     renderLibrary();
     saveState();
-    toast('Deleted');
+    toast('🗑️ ' + name + ' deleted');
   });
 }
 
@@ -3368,12 +3426,16 @@ function showPrompt(msg, defaultVal, onOK) {
 }
 
 function modalOK() {
-  closeModal();
-  if (_modalCallback) {
-    if (_modalIsPrompt) {
-      _modalCallback(document.getElementById('modal-input').value);
+  // Save callback BEFORE closeModal() nullifies it
+  var cb        = _modalCallback;
+  var isPrompt  = _modalIsPrompt;
+  var promptVal = isPrompt ? document.getElementById('modal-input').value : null;
+  closeModal();           // safe to null _modalCallback now
+  if (cb) {
+    if (isPrompt) {
+      cb(promptVal);
     } else {
-      _modalCallback();
+      cb();
     }
   }
 }
@@ -3787,6 +3849,26 @@ function driveUpdateUI(connected) {
     if (connAct)   connAct.style.display   = 'none';
   }
 }
+
+// ═══════════════════════════════════════════
+// THEME TOGGLE
+// ═══════════════════════════════════════════
+function toggleTheme() {
+  var isLight = document.body.classList.toggle('light-theme');
+  localStorage.setItem('swarna_theme', isLight ? 'light' : 'dark');
+  document.getElementById('theme-icon').textContent  = isLight ? '🌙' : '☀️';
+  document.getElementById('theme-label').textContent = isLight ? 'Dark' : 'Light';
+}
+
+function loadTheme() {
+  var saved = localStorage.getItem('swarna_theme');
+  if (saved === 'light') {
+    document.body.classList.add('light-theme');
+    document.getElementById('theme-icon').textContent  = '🌙';
+    document.getElementById('theme-label').textContent = 'Dark';
+  }
+}
+loadTheme();
 </script>
 </body>
 </html>
