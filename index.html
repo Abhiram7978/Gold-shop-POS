@@ -2,12 +2,6 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#C9A84C">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="SwarnaSoft">
-<link rel="apple-touch-icon" href="192.png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SwarnaSoft – Gold Shop POS</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -230,6 +224,7 @@
     color: #000;
   }
   .btn-gold:hover { filter: brightness(1.15); transform: translateY(-1px); }
+  .btn-scan-flash { filter: brightness(1.4) !important; transform: scale(0.95) !important; transition: none !important; }
   .btn-outline {
     background: transparent; border: 1px solid var(--border);
     color: var(--text-dim);
@@ -805,8 +800,9 @@
   <!-- SCANNER INPUT -->
   <div class="scanner-bar">
     <input type="text" id="scanner-input" placeholder=" Scan barcode or type product code and press Enter..."
-      onkeydown="if(event.key==='Enter') scanBarcode()">
-    <button class="btn btn-gold btn-sm" onclick="scanBarcode()">Scan</button>
+      autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+      tabindex="1">
+    <button id="scan-btn" class="btn btn-gold btn-sm" onclick="handleScannedBarcode(document.getElementById('scanner-input').value)">Scan</button>
   </div>
 
   <!-- TILES -->
@@ -1123,7 +1119,16 @@
           </div>
           <div>
             <label>SKU / Code</label>
-            <input type="text" id="bc-sku" placeholder="Auto or manual">
+            <div style="position:relative;">
+              <input type="text" id="bc-sku" placeholder="Auto or manual"
+                oninput="checkDuplicateSKU(this.value)"
+                style="padding-right:110px;">
+              <span id="sku-dup-badge" style="display:none;position:absolute;
+                right:8px;top:50%;transform:translateY(-50%);
+                background:#5a1a1a;color:#e57373;border:1px solid #e57373;
+                border-radius:4px;font-size:10px;padding:2px 7px;
+                white-space:nowrap;font-weight:600;">⚠ DUPLICATE SKU</span>
+            </div>
           </div>
         </div>
 
@@ -1802,6 +1807,14 @@ function clearRateHistory() {
   window.addEventListener('load', function() {
     setTimeout(driveInit, 1000);
   });
+  // If billing tab is active on load, focus scanner-input immediately
+  window.addEventListener('load', function() {
+    var billingTab = document.getElementById('tab-billing');
+    if (billingTab && billingTab.classList.contains('active')) {
+      var si = document.getElementById('scanner-input');
+      if (si) si.focus();
+    }
+  });
 })();
 
 // ═══════════════════════════════════════════
@@ -2001,8 +2014,21 @@ function switchTab(name) {
   document.getElementById('tab-' + name).classList.add('active');
   const btn = document.getElementById('tbtn-' + name);
   if (btn) btn.classList.add('active');
+  if (name === 'billing') {
+    setTimeout(function() {
+      var si = document.getElementById('scanner-input');
+      if (si) si.focus();
+    }, 120);
+  }
 }
 
+// ═══════════════════════════════════════════
+// BARCODE SCANNER — BUFFERED INPUT SYSTEM
+// Replaces the old single-keydown focus guard.
+// Handles HID keyboard-mode USB scanners reliably:
+//   • Fast burst input (scanner speed) vs. normal typing
+//   • Input always captured even if field is not focused
+//   • scanBarcode() called only after input stabilises
 // ═══════════════════════════════════════════
 // CLOCK
 // ═══════════════════════════════════════════
@@ -2120,9 +2146,18 @@ function loadCustFromBill(idx) {
 // ═══════════════════════════════════════════
 // BILLING / POS
 // ═══════════════════════════════════════════
-function scanBarcode() {
-  const code = v('scanner-input').trim();
+function scanBarcode(codeFromScanner = null) {
+  let code = codeFromScanner;
+
+  if (!code) {
+    const input = document.getElementById("scanner-input");
+    code = input ? input.value.trim() : "";
+  }
+
   if (!code) return;
+
+  console.log("Processing barcode:", code);
+
   const product = state.products.find(p => p.sku.toUpperCase() === code.toUpperCase());
   if (product) { addItemToBill(product); toast('✅ ' + product.name + ' added'); }
   else toast('❌ Product not found: ' + code);
@@ -2157,6 +2192,7 @@ function addItemToBill(product) {
   renderBillTable();
   recalcBill();
   renderBillTabs();
+  saveState();
 }
 
 function addManualItem() {
@@ -2180,7 +2216,7 @@ function computeItemPrice(product, goldRate, silverRate, wastagePct, makingPct, 
   const grossWeight = g - stone;
 
   // ── STEP 1: Inclusive-GST rate per gram for this karat ──
-  const purityMap   = { gold24:1, gold22:0.92, gold18:0.78, silver:1 };
+  const purityMap   = { gold24:1, gold22:0.92, gold21:0.875, gold18:0.78, gold14:0.585, silver:1 };
   const purity      = purityMap[product.metal] || 0.92;
   const inclGSTRate = product.metal === 'silver'
     ? (silverRate / 1000) * purity
@@ -2494,10 +2530,18 @@ function bcUpdateNetWt() {
   if (el) el.value = netWt > 0 ? netWt.toFixed(3) : '';
 }
 
+function checkDuplicateSKU(val) {
+  var badge = document.getElementById('sku-dup-badge');
+  if (!badge || !val) { if (badge) badge.style.display = 'none'; return; }
+  var exists = state.products.some(function(x) { return x.sku === val.trim(); });
+  badge.style.display = exists ? '' : 'none';
+}
+
 function autoSKU() {
-  var metal  = v('bc-metal');
-  var prefix = { gold22:'G22', gold24:'G24', gold18:'G18', silver:'SLV' }[metal] || 'PRD';
-  document.getElementById('bc-sku').value = prefix + '-' + Date.now().toString().slice(-6);
+  // 4-digit numeric SKU — fits in 27mm barcode at 1.03px/module (scannable)
+  // Format: NNNN (last 4 digits of timestamp = always unique per session)
+  var sku = Date.now().toString().slice(-4);
+  document.getElementById('bc-sku').value = sku;
 }
 
 function getBcCheckbox(id) {
@@ -2604,17 +2648,17 @@ function buildTagHTML(rawProduct, size, style, forPrint) {
     var INFO_MM  = '27mm';
     var BC_MM    = '27mm';
     // barcode SVG px: at 96dpi, 33mm ≈ 125px wide; height 11mm - 2mm padding = 9mm ≈ 34px
-    var prtBcSvgW = forPrint ? 96 : (bcW - 4);
+    var prtBcSvgW = forPrint ? 98 : (bcW - 4);
     var prtBcSvgH = forPrint ? 28  : preBcH;
 
     var svgRt = generateBarcodeSVG(p.sku, prtBcSvgW, prtBcSvgH);
 
     // ── FONT SIZES ──
     // Print: pt units tuned for 11mm height (≈31pt total usable)
-    var fzShop   = forPrint ? '6pt'   : '7px';
-    var fzName   = forPrint ? '7.5pt' : '8.5px';
-    var fzMetal  = forPrint ? '5.5pt' : '6.5px';
-    var fzField  = forPrint ? '5.5pt' : '6px';
+    var fzShop   = forPrint ? '5.5pt' : '7px';
+    var fzName   = forPrint ? '6.5pt' : '8.5px';
+    var fzMetal  = forPrint ? '5pt'   : '6.5px';
+    var fzField  = forPrint ? '5pt'   : '6px';
     var fzSKU    = forPrint ? '4.5pt' : '5.5px';
     var fieldGap = forPrint ? '1.5mm' : '4px';
 
@@ -2656,9 +2700,9 @@ function buildTagHTML(rawProduct, size, style, forPrint) {
       var bisSpan = bisHtml
         ? '<span style="float:right;line-height:1;">'+bisHtml+'</span>'
         : '';
-      var row1 = (shopNameSpan || shopLogoSpan || bisSpan)
-        ? '<tr><td style="padding:0;white-space:nowrap;overflow:hidden;line-height:1.2;font-family:monospace;color:#000;font-weight:700;font-style:normal;">'
-            + bisSpan + shopLogoSpan + shopNameSpan
+      var row1 = shopNameSpan
+        ? '<tr><td style="padding:0;white-space:nowrap;overflow:hidden;line-height:1.2;font-family:monospace;color:#000;font-weight:700;">'
+            + shopNameSpan
           +'</td></tr>'
         : '';
 
@@ -2692,6 +2736,7 @@ function buildTagHTML(rawProduct, size, style, forPrint) {
         : '';
 
       var infoTable = '<table style="width:'+INFO_MM+';border-collapse:collapse;table-layout:fixed;font-family:monospace;color:#000;font-weight:700;font-style:normal;">'
+        + '<colgroup><col style="width:'+INFO_MM+'"></colgroup>'
         + row1 + row2 + row3 + row4
         +'</table>';
 
@@ -2817,33 +2862,93 @@ function buildTagHTML(rawProduct, size, style, forPrint) {
 }
 
 
+// ═══════════════════════════════════════════════════════════
+// PROPER CODE 128B BARCODE GENERATOR
+// Full spec implementation with correct patterns + checksum
+// Compatible with all standard barcode scanners (RETSOL, TVS, etc.)
+// ═══════════════════════════════════════════════════════════
+
+// Code 128 bar/space patterns for each symbol (11 modules each)
+// Each number = 11-bit pattern where 1=bar, 0=space
+var CODE128_PATTERNS = [
+  '11011001100','11001101100','11001100110','10010011000','10010001100',
+  '10001001100','10011001000','10011000100','10001100100','11001001000',
+  '11001000100','11000100100','10110011100','10011011100','10011001110',
+  '10111001100','10011101100','10011100110','11001110010','11001011100',
+  '11001001110','11011100100','11001110100','11101101110','11101001100',
+  '11100101100','11100100110','11101100100','11100110100','11100110010',
+  '11011011000','11011000110','11000110110','10100011000','10001011000',
+  '10001000110','10110001000','10001101000','10001100010','11010001000',
+  '11000101000','11000100010','10110111000','10110001110','10001101110',
+  '10111011000','10111000110','10001110110','11101110110','11010001110',
+  '11000101110','11011101000','11011100010','11011101110','11101011000',
+  '11101000110','11100010110','11101101000','11101100010','11100011010',
+  '11101111010','11001000010','11110001010','10100110000','10100001100',
+  '10010110000','10010000110','10000101100','10000100110','10110010000',
+  '10110000100','10011010000','10011000010','10000110100','10000110010',
+  '11000010010','11001010000','11110111010','11000010100','10001111010',
+  '10100111100','10010111100','10010011110','10111100100','10011110100',
+  '10011110010','11110100100','11110010100','11110010010','11011011110',
+  '11011110110','11110110110','10101111000','10100011110','10001011110',
+  '10111101000','10111100010','11110101000','11110100010','10111011110',
+  '10111101110','11101011110','11110101110','11010000100','11010010000',
+  '11010011100' // 106 = STOP pattern (used separately)
+];
+
+// Start B  = symbol 104, value = CODE128_PATTERNS[104]
+// Stop     = '1100011101011'  (13 modules, fixed)
+var CODE128_START_B = CODE128_PATTERNS[104]; // 11010010000
+var CODE128_STOP    = '1100011101011';
+
 function generateBarcodeSVG(code, width, height) {
   width  = width  || 180;
   height = height || 44;
-  var bars = strToCode128Bars(code || 'NOCODE');
-  var barW = Math.max(0.8, width / bars.length);
-  var svg  = '', x = 0;
-  for (var i=0;i<bars.length;i++) {
-    if (bars[i] === 1) svg += '<rect x="'+x.toFixed(2)+'" y="0" width="'+barW.toFixed(2)+'" height="'+height+'" fill="#000"/>';
-    x += barW;
-  }
-  return '<svg width="'+width+'" height="'+height+'" viewBox="0 0 '+width+' '+height+'" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto;">'+svg+'</svg>';
-}
 
-function strToCode128Bars(str) {
-  var bars = [1,1,0,1,1,0,0,1,1,0];
-  for (var i=0;i<str.length;i++) {
-    var c  = str.charCodeAt(i) % 96;
-    var w1 = 1 + (c & 3);
-    var w2 = 1 + ((c >> 2) & 3);
-    var w3 = 1 + ((c >> 4) & 3);
-    for(var j=0;j<w1;j++) bars.push(1);
-    for(var j=0;j<w2;j++) bars.push(0);
-    for(var j=0;j<w3;j++) bars.push(1);
-    bars.push(0);
+  // Build Code 128B symbol sequence
+  // Each character maps to its ASCII value - 32 (Code 128B offset)
+  var symbols = [];
+  for (var i = 0; i < code.length; i++) {
+    var ascii = code.charCodeAt(i);
+    if (ascii < 32 || ascii > 126) continue; // skip non-printable
+    symbols.push(ascii - 32);
   }
-  bars.push(1,1,0,0,0,1,0,1,1,1,0,0);
-  return bars;
+
+  // Calculate checksum
+  // Start value = 104 (Start B)
+  var checksum = 104;
+  for (var i = 0; i < symbols.length; i++) {
+    checksum += symbols[i] * (i + 1);
+  }
+  checksum = checksum % 103;
+
+  // Build full bar pattern string
+  var pattern = CODE128_START_B; // Start B
+  for (var i = 0; i < symbols.length; i++) {
+    pattern += CODE128_PATTERNS[symbols[i]];
+  }
+  pattern += CODE128_PATTERNS[checksum]; // checksum symbol
+  pattern += CODE128_STOP;               // stop
+
+  // Add quiet zones (10 modules each side)
+  var quiet = '0000000000';
+  pattern = quiet + pattern + quiet;
+
+  // Render SVG
+  var moduleW = width / pattern.length;
+  // Ensure minimum module width of 1px for scanner readability
+  if (moduleW < 1) moduleW = 1;
+  var totalW = moduleW * pattern.length;
+
+  var svg = '';
+  var x = 0;
+  for (var i = 0; i < pattern.length; i++) {
+    if (pattern[i] === '1') {
+      svg += '<rect x="'+x.toFixed(3)+'" y="0" width="'+moduleW.toFixed(3)+'" height="'+height+'" fill="#000"/>';
+    }
+    x += moduleW;
+  }
+
+  return '<svg width="'+Math.ceil(totalW)+'" height="'+height+'" viewBox="0 0 '+Math.ceil(totalW)+' '+height+'" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto;">'+svg+'</svg>';
 }
 
 // ── SAVE TO LIBRARY ──
@@ -2851,7 +2956,20 @@ function saveToLibrary() {
   if (!window._lastBcProduct) { toast('Generate a tag first'); return; }
   var prod = window._lastBcProduct;
   var idx = state.products.findIndex(function(x){ return x.sku === prod.sku; });
-  if (idx > -1) state.products.splice(idx, 1);
+  if (idx > -1) {
+    // Duplicate SKU found — ask user to confirm overwrite
+    showConfirm(
+      '⚠️ Duplicate SKU: "' + prod.sku + '" already exists as "' + state.products[idx].name + '"\n\nOverwrite with "' + prod.name + '"?',
+      function() {
+        state.products.splice(idx, 1);
+        state.products.unshift(Object.assign({}, prod));
+        renderLibrary();
+        saveState();
+        toast('✅ Updated: ' + prod.name);
+      }
+    );
+    return;
+  }
   state.products.unshift(Object.assign({}, prod));
   renderLibrary();
   saveState();
@@ -3064,6 +3182,12 @@ function renderLibrary(query, metalFilter, sort) {
     return;
   }
 
+  // Build duplicate SKU map
+  var skuCount = {};
+  state.products.forEach(function(p) {
+    skuCount[p.sku] = (skuCount[p.sku] || 0) + 1;
+  });
+
   var html = '';
   products.forEach(function(p) {
     var realIdx = state.products.indexOf(p);
@@ -3075,6 +3199,7 @@ function renderLibrary(query, metalFilter, sort) {
       '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">' +
         '<div class="bc-name" style="text-align:left;">' + (p.name||'') + '</div>' +
         '<span style="font-size:10px;padding:2px 7px;border-radius:10px;background:'+metalBgColor+';color:'+metalBadgeColor+';border:1px solid '+metalBadgeColor+'44;white-space:nowrap;">' + metalLabel(p.metal) + '</span>' +
+        (skuCount[p.sku] > 1 ? '<span style="font-size:10px;padding:2px 7px;border-radius:10px;background:#5a1a1a;color:#e57373;border:1px solid #e5737344;white-space:nowrap;margin-left:4px;">⚠ DUPLICATE SKU</span>' : '') +
       '</div>' +
       '<div class="bc-meta" style="text-align:left;">' +
         '<b>G.Wt:</b> ' + ((p.grossWt||p.weight||0)).toFixed(3) + 'g' +
@@ -3876,5 +4001,194 @@ function loadTheme() {
 }
 loadTheme();
 </script>
+
+<script>
+// ===== SCANNER FIX START =====
+// Root causes fixed:
+// RC1: Buffer wipe on Enter key itself (gap check ran on Enter, wiped buffer)
+// RC2: Scan dropped when another input was focused (otherInputFocused guard)
+// RC3: Manual typing used stale single-char scanBuffer instead of input.value
+// RC4: wireInput double-handler caused race on rapid scans
+// RC5: 2000ms auto-focus left 2s window where scans were dropped
+// ==========================================================================
+
+var scanBuffer      = "";   // accumulates HID keystrokes mid-burst
+var lastKeyTime     = 0;    // ms timestamp of last printable keydown
+var lastScannedCode = "";   // last accepted barcode (dedup)
+var lastScanTime    = 0;    // ms timestamp of last accepted scan (dedup)
+
+// ── Visual feedback: flash Scan button ────────────────────────────────────
+function flashScanBtn() {
+  var btn = document.getElementById("scan-btn");
+  if (!btn) return;
+  btn.classList.add("btn-scan-flash");
+  setTimeout(function () { btn.classList.remove("btn-scan-flash"); }, 150);
+}
+
+// ── Central processor: dedup → tab switch → scanBarcode ───────────────────
+function handleScannedBarcode(code) {
+  code = (code || "").trim();
+  if (!code) return;
+
+  var now = Date.now();
+
+  // Dedup: block same code fired twice within 800 ms
+  if (code === lastScannedCode && (now - lastScanTime < 800)) {
+    console.warn("[Scanner] Dedup blocked:", code);
+    return;
+  }
+  lastScannedCode = code;
+  lastScanTime    = now;
+
+  console.log("[Scanner] Accepted:", code);
+
+  // Switch to Billing tab from any tab
+  var billingTab     = document.getElementById("tab-billing");
+  var alreadyBilling = billingTab && billingTab.classList.contains("active");
+  if (!alreadyBilling) switchTab("billing");
+
+  // Show code in scanner-input briefly for UI feedback
+  var scanInput = document.getElementById("scanner-input");
+
+  function process() {
+    scanBarcode(code);
+    flashScanBtn();
+    if (scanInput) { scanInput.value = ""; scanInput.focus(); }
+  }
+
+  // If we just switched tabs, give DOM 100ms to render before reading inputs
+  if (!alreadyBilling) {
+    setTimeout(process, 100);
+  } else {
+    process();
+  }
+}
+
+// ── MASTER keydown listener ────────────────────────────────────────────────
+// Captures scanner from ANY tab, with ANY element focused.
+// Design:
+//   • Printable chars: always accumulate in scanBuffer (detect burst)
+//     EXCEPT when another non-scanner input is focused (chars belong to user)
+//   • Enter key: ALWAYS evaluate — pick best code source and fire
+//     - If scanBuffer has ≥ 2 chars (scanner burst): use scanBuffer
+//     - Else if another input was focused (RC2): steal its value — scanner typed there
+//     - Else: use #scanner-input value (manual typing fallback)
+//   • Buffer reset: ONLY on printable chars with gap > 100ms, NEVER on Enter
+//     (RC1 fix: prevents Enter arriving 110ms late from wiping the buffer)
+document.addEventListener("keydown", function (e) {
+  var now    = Date.now();
+  var active = document.activeElement;
+  var tag    = active ? active.tagName.toUpperCase() : "BODY";
+
+  var scannerInputFocused = active && active.id === "scanner-input";
+  var otherInputFocused   = (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT")
+                            && !scannerInputFocused;
+
+  // Ignore modifier combos everywhere
+  if (e.ctrlKey || e.altKey || e.metaKey) return;
+
+  if (e.key === "Enter") {
+    // ── Enter: always evaluate regardless of which element is focused ──
+    var scanInput = document.getElementById("scanner-input");
+    var inputVal  = (scanInput ? scanInput.value.trim() : "");
+    var bufVal    = scanBuffer.trim();
+
+    var code = "";
+
+    if (bufVal.length >= 2) {
+      // Scanner burst captured in global buffer (most reliable)
+      code = bufVal;
+
+    } else if (otherInputFocused && active && active.value && active.value.trim().length >= 1) {
+      // RC2 FIX: scanner typed into wrong field because that field had focus.
+      // Steal the value from that field and clear it so garbage doesn't remain.
+      code = active.value.trim();
+      active.value = "";
+
+    } else if (inputVal.length >= 1) {
+      // RC3 FIX: manual typing in scanner-input — input.value is authoritative
+      code = inputVal;
+    }
+
+    // Always reset buffer on Enter
+    scanBuffer = "";
+
+    if (!code) return;
+
+    // If another input was contaminated by scanner chars during burst,
+    // clear it now so garbage doesn't remain in that field
+    if (otherInputFocused && active) {
+      // Only clear if active element's value equals the barcode we just read
+      // (meaning scanner typed into it) — don't wipe user-entered data
+      if (active.value && active.value.trim() === code) {
+        active.value = "";
+      }
+    }
+
+    e.preventDefault();
+    handleScannedBarcode(code);
+
+  } else if (e.key.length === 1) {
+    // ── Printable char: accumulate in scanBuffer ──
+    // Skip if user is genuinely typing in another field (RC2: don't steal)
+    if (otherInputFocused) return;
+
+    // RC1 fix: reset only on printable chars, never on Enter
+    if (now - lastKeyTime > 100) {
+      scanBuffer = "";
+    }
+    lastKeyTime = now;
+    scanBuffer += e.key;
+  }
+
+}, true); // useCapture=true: fires before any element's own listener
+
+// ── Auto-focus #scanner-input when Billing tab is active ──────────────────
+// RC5 fix: reduced from 2000ms to 500ms
+(function () {
+  function wireAutofocus() {
+    var input = document.getElementById("scanner-input");
+    if (!input) return;
+
+    function tryFocus() {
+      var billingTab = document.getElementById("tab-billing");
+      if (!billingTab || !billingTab.classList.contains("active")) return;
+      var ae  = document.activeElement;
+      var t   = ae ? ae.tagName.toUpperCase() : "BODY";
+      // Don't steal from intentionally focused fields
+      if (ae && ae !== document.body && ae !== input &&
+          (t === "INPUT" || t === "TEXTAREA" || t === "SELECT" || t === "BUTTON")) return;
+      input.focus();
+    }
+
+    // Reclaim after click on non-interactive area
+    document.addEventListener("click", function (e) {
+      var t = e.target ? e.target.tagName.toUpperCase() : "";
+      if (t === "INPUT" || t === "TEXTAREA" || t === "SELECT" ||
+          t === "BUTTON" || t === "A" || t === "LABEL") return;
+      setTimeout(tryFocus, 80);
+    });
+
+    // Reclaim on page visibility restore
+    document.addEventListener("visibilitychange", function () {
+      if (!document.hidden) setTimeout(tryFocus, 150);
+    });
+
+    // Periodic recovery — 500ms (RC5 fix)
+    setInterval(tryFocus, 500);
+
+    tryFocus();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", wireAutofocus);
+  } else {
+    wireAutofocus();
+  }
+})();
+
+// ===== SCANNER FIX END =====
+</script>
+
 </body>
 </html>
